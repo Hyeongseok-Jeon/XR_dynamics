@@ -40,3 +40,50 @@ def data_interpolation(RawData, TimeGap):
                     InterpolatedData[list(RawData.keys())[i]].append(InterpolatedValue)
 
     return InterpolatedData
+
+def DataExtractor(Data, DataListIndex, InitFrameIndex, NumberOfHistory):
+
+    #     Input
+    DLStrAng = np.expand_dims(np.asarray(Data[DataListIndex]['SteeringAngle'][InitFrameIndex:InitFrameIndex + NumberOfHistory + 1]), axis=1)
+    DLAccelPedalRatio = np.expand_dims(np.asarray(Data[DataListIndex]['AccelPedalRate'][InitFrameIndex:InitFrameIndex + NumberOfHistory + 1]), axis=1)
+    DLBrakePedalRatio = np.expand_dims(np.asarray(Data[DataListIndex]['BrakePedalRate'][InitFrameIndex:InitFrameIndex + NumberOfHistory + 1]), axis=1)
+    Input = np.expand_dims(np.concatenate((DLStrAng, DLAccelPedalRatio, DLBrakePedalRatio), axis=1), axis=0)
+
+    #     Output
+    DLDeltaVelocity = np.expand_dims(np.asarray(Data[DataListIndex]['Velocity'][InitFrameIndex + 1:InitFrameIndex + NumberOfHistory + 2]) - np.asarray(Data[DataListIndex]['Velocity'][InitFrameIndex:InitFrameIndex + NumberOfHistory + 1]), axis=1)
+    DLDeltaYawRate = np.expand_dims(np.asarray(Data[DataListIndex]['YawRate'][InitFrameIndex + 1:InitFrameIndex + NumberOfHistory + 2]) - np.asarray(Data[DataListIndex]['YawRate'][InitFrameIndex:InitFrameIndex + NumberOfHistory + 1]), axis=1)
+    DLDeltaRollRate = np.expand_dims(np.asarray(Data[DataListIndex]['RollRate'][InitFrameIndex + 1:InitFrameIndex + NumberOfHistory + 2]) - np.asarray(Data[DataListIndex]['RollRate'][InitFrameIndex:InitFrameIndex + NumberOfHistory + 1]), axis=1)
+    DLDeltaPitchRate = np.expand_dims(np.asarray(Data[DataListIndex]['PitchRate'][InitFrameIndex + 1:InitFrameIndex + NumberOfHistory + 2]) - np.asarray(Data[DataListIndex]['PitchRate'][InitFrameIndex:InitFrameIndex + NumberOfHistory + 1]), axis=1)
+    Output = np.expand_dims(np.concatenate((DLDeltaVelocity, DLDeltaYawRate, DLDeltaRollRate, DLDeltaPitchRate), axis=1), axis=0)
+
+    #     DataAll
+    DLTimeStamp = np.expand_dims(np.asarray(Data[DataListIndex]['TimeStamp'][InitFrameIndex:InitFrameIndex + NumberOfHistory + 2]), axis=1)
+    DLStrAng = np.expand_dims(np.asarray(Data[DataListIndex]['SteeringAngle'][InitFrameIndex:InitFrameIndex + NumberOfHistory + 2]), axis=1)
+    DLAccelPedalRatio = np.expand_dims(np.asarray(Data[DataListIndex]['AccelPedalRate'][InitFrameIndex:InitFrameIndex + NumberOfHistory + 2]), axis=1)
+    DLBrakePedalRatio = np.expand_dims(np.asarray(Data[DataListIndex]['BrakePedalRate'][InitFrameIndex:InitFrameIndex + NumberOfHistory + 2]), axis=1)
+    DLVelocity = np.expand_dims(np.asarray(Data[DataListIndex]['Velocity'][InitFrameIndex:InitFrameIndex + NumberOfHistory + 2]), axis=1)
+    DLYawRate = np.expand_dims(np.asarray(Data[DataListIndex]['YawRate'][InitFrameIndex:InitFrameIndex + NumberOfHistory + 2]), axis=1)
+    DLRollRate = np.expand_dims(np.asarray(Data[DataListIndex]['RollRate'][InitFrameIndex:InitFrameIndex + NumberOfHistory + 2]), axis=1)
+    DLPitchRate = np.expand_dims(np.asarray(Data[DataListIndex]['PitchRate'][InitFrameIndex:InitFrameIndex + NumberOfHistory + 2]), axis=1)
+    DLLatitude = np.expand_dims(np.asarray(Data[DataListIndex]['Latitude'][InitFrameIndex:InitFrameIndex + NumberOfHistory + 2]), axis=1)
+    DLLongitude = np.expand_dims(np.asarray(Data[DataListIndex]['Longitude'][InitFrameIndex:InitFrameIndex + NumberOfHistory + 2]), axis=1)
+    DLHeight = np.expand_dims(np.asarray(Data[DataListIndex]['Height'][InitFrameIndex:InitFrameIndex + NumberOfHistory + 2]), axis=1)
+    DLRoll = np.expand_dims(np.asarray(Data[DataListIndex]['Roll'][InitFrameIndex:InitFrameIndex + NumberOfHistory + 2]), axis=1)
+    DLPitch = np.expand_dims(np.asarray(Data[DataListIndex]['Pitch'][InitFrameIndex:InitFrameIndex + NumberOfHistory + 2]), axis=1)
+    DLYaw = np.expand_dims(np.asarray(Data[DataListIndex]['Yaw'][InitFrameIndex:InitFrameIndex + NumberOfHistory + 2]), axis=1)
+    DataAll = np.expand_dims(np.concatenate((DLTimeStamp,
+                                         DLStrAng,
+                                         DLAccelPedalRatio,
+                                         DLBrakePedalRatio,
+                                         DLVelocity,
+                                         DLYawRate,
+                                         DLRollRate,
+                                         DLPitchRate,
+                                         DLLatitude,
+                                         DLLongitude,
+                                         DLHeight,
+                                         DLRoll,
+                                         DLPitch,
+                                         DLYaw), axis=1), axis=0)
+
+    return Input, Output, DataAll
