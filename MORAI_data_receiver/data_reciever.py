@@ -1,72 +1,89 @@
 import numpy as np
 
-from MORAI_data_receiver.receiver import EgoInfoReceiver
+from MORAI_data_receiver.receiver.ego_info_receiver import EgoInfoReceiver
 import os
 import threading
 import time
 from math import sqrt
+import pandas as pd
 
 
-class UdpManager:
-    def __init__(self, autonomous_driving):
-        self.autonomous_driving = autonomous_driving
+network = dict()
+network['host_ip'] = '127.0.0.1'
+network['ego_info_dst_port'] = 909
+ego_info_receiver = EgoInfoReceiver(network['host_ip'], network['ego_info_dst_port'])
 
-        self.config = Config()
-        self.config.update_config(os.path.join(os.path.dirname(__file__), 'config.json'))
-        self.traffic_light_control = self.config['map']['traffic_light_control']
-        self.sampling_time = 1/float(self.config['common']['sampling_rate'])
+FrameNumber = 1500
+SteeringAngle = [0 for i in range(1500)]
+AccelPedalRate = [0 for i in range(1500)]
+BrakePedalRate = [0 for i in range(1500)]
+Velocity = [0 for i in range(1500)]
+RollRate = [0 for i in range(1500)]
+PitchRate = [0 for i in range(1500)]
+YawRate = [0 for i in range(1500)]
+LocalX = [0 for i in range(1500)]
+LocalY = [0 for i in range(1500)]
+LocalZ = [0 for i in range(1500)]
+Roll = [0 for i in range(1500)]
+Pitch = [0 for i in range(1500)]
+Yaw = [0 for i in range(1500)]
+TimeStamp = [0 for i in range(1500)]
+VehicleModel = [0 for i in range(1500)]
 
-        self.vehicle_state = None
-        self.object_info_list = []
-        self.traffic_light = []
+index = 0
+while True:
+    ego_status = ego_info_receiver.parsed_data
+    if np.asarray(ego_status).sum() == 0:
+        pass
+    else:
+        print(index)
+        SteeringAngle[index] = ego_status[24] # steering angle of the tire in degree, left turn (-) , right turn (+)
+        AccelPedalRate[index] = ego_status[4] # activation ratio of the accel pedal, normalized to 0 ~ 1
+        BrakePedalRate[index] = ego_status[5] # activation ratio of the brake pedal, normalized to 0 ~ 1
 
-        self.prev_x = 0
-        self.prev_y = 0
+        Velocity[index] = np.abs(ego_status[2]) / 3.6 # in meter per second
+        RollRate[index] = ego_status[25] # degree per second, left turn (+), right turn (-)s
+        PitchRate[index] = ego_status[26] # degree per second, brake (+), accel (-)
+        YawRate[index] = ego_status[27] # degree per second, left turn (+), right turn (-)
 
-        self.path_list_x = []
-        self.path_list_y = []
-
-
-        self.vehicle_max_steering_data = 36.25
-
-    def execute(self):
-        print('start simulation')
-        self._set_protocol()
-        self._main_loop()
-
-    def _set_protocol(self):
-        network = self.config['network']
-
-        # receiver
-        self.ego_info_receiver = EgoInfoReceiver(
-            network['host_ip'], network['ego_info_dst_port'], self._ego_info_callback
-        )
-
-    def _main_loop(self):
-
-        while True:
-            start_time = time.perf_counter()
-            compen_time = 0
-            if self.vehicle_state:
-
-
-                control_input, _ = self.autonomous_driving.execute(
-                    self.vehicle_state, self.object_info_list, self.traffic_light
-                )
-
-                steering_input = -np.rad2deg(control_input.steering)/self.vehicle_max_steering_data
-
-                self.ctrl_cmd_sender.send_data([control_input.accel, control_input.brake, steering_input])
-
-                end_time = time.perf_counter()
-                self._print_info(control_input)
-                compen_time = float((end_time - start_time))
-            if((1/30 - compen_time) > 0):
-                time.sleep(1/30 - compen_time)
-
-    def _ego_info_callback(self, data):
-        if data:
-            self.vehicle_state = VehicleState(data[12], data[13], np.deg2rad(data[17]), data[18]/3.6)
-            self.vehicle_currenty_steer = data[-1]
+        LocalX[index] = ego_status[12]
+        LocalY[index] = ego_status[13]
+        LocalZ[index] = ego_status[14]
+        Roll[index] = ego_status[15]
+        Pitch[index] = ego_status[16]
+        Yaw[index] = ego_status[17]
+        if index == 0:
+            TimeStamp[index] = 0
+            StartTime = time.time()
+            init = 0
         else:
-            self.vehicle_state = None
+            TimeStamp[index] = time.time() - StartTime
+
+        VehicleModel[index] = 'IONIQ_HEV'
+        index = index + 1
+        if index > FrameNumber-1:
+            break
+        time.sleep(0.1)
+
+
+df = pd.DataFrame({'TimeStamp': TimeStamp,
+                   'VehicleModel': VehicleModel,
+                   'SteeringAngle': SteeringAngle,
+                   'AccelPedalRate': AccelPedalRate,
+                   'BrakePedalRate': BrakePedalRate,
+                   'Velocity': Velocity,
+                   'YawRate': YawRate,
+                   'RollRate': RollRate,
+                   'PitchRate': PitchRate,
+                   'LocalX': LocalX,
+                   'LocalY': LocalY,
+                   'LocalZ': LocalZ,
+                   'Roll': Roll,
+                   'Pitch': Pitch,
+                   'Yaw': Yaw})
+
+DataGroupList = os.listdir('dataset/')
+index = [int(DataGroupList[i][DataGroupList[i].find("Group")+5]) for i in range(len(DataGroupList))]
+
+os.mkdir('dataset/Group' + str(np.max(index)+1))
+df.to_csv('dataset/Group' + str(np.max(index)+1) + '/sample.csv', index=False)

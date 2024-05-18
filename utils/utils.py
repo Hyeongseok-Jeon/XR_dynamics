@@ -65,9 +65,9 @@ def DataExtractor(Data, DataListIndex, InitFrameIndex, NumberOfHistory):
     DLYawRate = np.expand_dims(np.asarray(Data[DataListIndex]['YawRate'][InitFrameIndex:InitFrameIndex + NumberOfHistory + 2]), axis=1)
     DLRollRate = np.expand_dims(np.asarray(Data[DataListIndex]['RollRate'][InitFrameIndex:InitFrameIndex + NumberOfHistory + 2]), axis=1)
     DLPitchRate = np.expand_dims(np.asarray(Data[DataListIndex]['PitchRate'][InitFrameIndex:InitFrameIndex + NumberOfHistory + 2]), axis=1)
-    DLLatitude = np.expand_dims(np.asarray(Data[DataListIndex]['Latitude'][InitFrameIndex:InitFrameIndex + NumberOfHistory + 2]), axis=1)
-    DLLongitude = np.expand_dims(np.asarray(Data[DataListIndex]['Longitude'][InitFrameIndex:InitFrameIndex + NumberOfHistory + 2]), axis=1)
-    DLHeight = np.expand_dims(np.asarray(Data[DataListIndex]['Height'][InitFrameIndex:InitFrameIndex + NumberOfHistory + 2]), axis=1)
+    DLLocalX = np.expand_dims(np.asarray(Data[DataListIndex]['LocalX'][InitFrameIndex:InitFrameIndex + NumberOfHistory + 2]), axis=1)
+    DLLocalY = np.expand_dims(np.asarray(Data[DataListIndex]['LocalY'][InitFrameIndex:InitFrameIndex + NumberOfHistory + 2]), axis=1)
+    DLLocalZ = np.expand_dims(np.asarray(Data[DataListIndex]['LocalZ'][InitFrameIndex:InitFrameIndex + NumberOfHistory + 2]), axis=1)
     DLRoll = np.expand_dims(np.asarray(Data[DataListIndex]['Roll'][InitFrameIndex:InitFrameIndex + NumberOfHistory + 2]), axis=1)
     DLPitch = np.expand_dims(np.asarray(Data[DataListIndex]['Pitch'][InitFrameIndex:InitFrameIndex + NumberOfHistory + 2]), axis=1)
     DLYaw = np.expand_dims(np.asarray(Data[DataListIndex]['Yaw'][InitFrameIndex:InitFrameIndex + NumberOfHistory + 2]), axis=1)
@@ -79,9 +79,9 @@ def DataExtractor(Data, DataListIndex, InitFrameIndex, NumberOfHistory):
                                          DLYawRate,
                                          DLRollRate,
                                          DLPitchRate,
-                                         DLLatitude,
-                                         DLLongitude,
-                                         DLHeight,
+                                         DLLocalX,
+                                         DLLocalY,
+                                         DLLocalZ,
                                          DLRoll,
                                          DLPitch,
                                          DLYaw), axis=1), axis=0)

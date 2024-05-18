@@ -13,7 +13,7 @@ DataGroupList = os.listdir('dataset/')
 
 TimeGap = 0.1
 TimeHistory = 3
-DataGroupIndex = 0
+DataGroupIndex = 2
 SamplingNumber = 100000
 
 DataList = glob.glob('dataset/' + DataGroupList[DataGroupIndex] + '/*.csv')

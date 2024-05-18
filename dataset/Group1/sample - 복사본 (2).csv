@@ -1,4 +1,4 @@
-TimeStamp,VehicleModel,SteeringAngle,AccelPedalRate,BrakePedalRate,Velocity,YawRate,RollRate,PitchRate,Latitude,Longitude,Height,Roll,Pitch,Yaw
+TimeStamp,VehicleModel,SteeringAngle,AccelPedalRate,BrakePedalRate,Velocity,YawRate,RollRate,PitchRate,LocalX,LocalY,LocalZ,Roll,Pitch,Yaw
 0,IONIQ6,0,0,0,0,0,0,0,0,0,0,0,0,0
 0.1,IONIQ6,1,1,1,1,1,1,1,1,1,1,1,1,1
 0.2,IONIQ6,2,2,2,2,2,2,2,2,2,2,2,2,2
