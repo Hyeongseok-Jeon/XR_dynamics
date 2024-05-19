@@ -42,9 +42,9 @@ while True:
         BrakePedalRate[index] = ego_status[5] # activation ratio of the brake pedal, normalized to 0 ~ 1
 
         Velocity[index] = np.abs(ego_status[2]) / 3.6 # in meter per second
-        RollRate[index] = ego_status[25] # degree per second, left turn (+), right turn (-)s
-        PitchRate[index] = ego_status[26] # degree per second, brake (+), accel (-)
-        YawRate[index] = ego_status[27] # degree per second, left turn (+), right turn (-)
+        RollRate[index] = np.deg2rad(ego_status[25]) # radian per second, left turn (+), right turn (-)
+        PitchRate[index] = np.deg2rad(ego_status[26]) # radian per second, brake (+), accel (-)
+        YawRate[index] = np.deg2rad(ego_status[27]) # radian per second, left turn (+), right turn (-)
 
         LocalX[index] = ego_status[12]
         LocalY[index] = ego_status[13]
