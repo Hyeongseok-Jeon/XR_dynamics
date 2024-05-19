@@ -1,6 +1,6 @@
 import numpy as np
 
-from MORAI_data_receiver.receiver.ego_info_receiver import EgoInfoReceiver
+from receiver.ego_info_receiver import EgoInfoReceiver
 import os
 import threading
 import time
@@ -14,21 +14,21 @@ network['ego_info_dst_port'] = 909
 ego_info_receiver = EgoInfoReceiver(network['host_ip'], network['ego_info_dst_port'])
 
 FrameNumber = 1500
-SteeringAngle = [0 for i in range(1500)]
-AccelPedalRate = [0 for i in range(1500)]
-BrakePedalRate = [0 for i in range(1500)]
-Velocity = [0 for i in range(1500)]
-RollRate = [0 for i in range(1500)]
-PitchRate = [0 for i in range(1500)]
-YawRate = [0 for i in range(1500)]
-LocalX = [0 for i in range(1500)]
-LocalY = [0 for i in range(1500)]
-LocalZ = [0 for i in range(1500)]
-Roll = [0 for i in range(1500)]
-Pitch = [0 for i in range(1500)]
-Yaw = [0 for i in range(1500)]
-TimeStamp = [0 for i in range(1500)]
-VehicleModel = [0 for i in range(1500)]
+SteeringAngle = [0 for i in range(FrameNumber)]
+AccelPedalRate = [0 for i in range(FrameNumber)]
+BrakePedalRate = [0 for i in range(FrameNumber)]
+Velocity = [0 for i in range(FrameNumber)]
+RollRate = [0 for i in range(FrameNumber)]
+PitchRate = [0 for i in range(FrameNumber)]
+YawRate = [0 for i in range(FrameNumber)]
+LocalX = [0 for i in range(FrameNumber)]
+LocalY = [0 for i in range(FrameNumber)]
+LocalZ = [0 for i in range(FrameNumber)]
+Roll = [0 for i in range(FrameNumber)]
+Pitch = [0 for i in range(FrameNumber)]
+Yaw = [0 for i in range(FrameNumber)]
+TimeStamp = [0 for i in range(FrameNumber)]
+VehicleModel = [0 for i in range(FrameNumber)]
 
 index = 0
 while True:
@@ -36,7 +36,6 @@ while True:
     if np.asarray(ego_status).sum() == 0:
         pass
     else:
-        print(index)
         SteeringAngle[index] = ego_status[24] # steering angle of the tire in degree, left turn (-) , right turn (+)
         AccelPedalRate[index] = ego_status[4] # activation ratio of the accel pedal, normalized to 0 ~ 1
         BrakePedalRate[index] = ego_status[5] # activation ratio of the brake pedal, normalized to 0 ~ 1
@@ -60,7 +59,12 @@ while True:
             TimeStamp[index] = time.time() - StartTime
 
         VehicleModel[index] = 'IONIQ_HEV'
+        print([TimeStamp[index], SteeringAngle[index], AccelPedalRate[index], BrakePedalRate[index],
+               Velocity[index], RollRate[index], PitchRate[index], YawRate[index],
+               LocalX[index], LocalY[index], LocalZ[index], Roll[index], Pitch[index], Yaw[index],
+               VehicleModel[index]])
         index = index + 1
+
         if index > FrameNumber-1:
             break
         time.sleep(0.1)
