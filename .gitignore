@@ -1,4 +1,4 @@
-*.csv
+dataset/raw_data_real_mohave/*/*.csv
 dataset/raw_data_real_mohave/XRP_DAQ_BIN_LAND/SETUP
 dataset/raw_data_real_mohave/XRP_DAQ_BIN_LAND/SynerexMapViewer.exe.WebView2
 dataset/raw_data_real_mohave/XRP_DAQ_BIN_LAND/XRP_DATA
