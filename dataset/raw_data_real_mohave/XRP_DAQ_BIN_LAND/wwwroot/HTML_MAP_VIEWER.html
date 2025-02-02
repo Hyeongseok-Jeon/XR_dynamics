@@ -1,0 +1,1750 @@
+<!DOCTYPE html><html>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>SYNEREX_MAP_VIEWER</title>
+<!-- chart.js -->
+<script src='https://cdn.jsdelivr.net/npm/chart.js'></script>
+<script>
+
+    var map;
+
+    var lastMiilis = 0;    
+    var skip_counter = 0;
+    var center_swap = 0;
+    var curLAT = 37.5606343;    var subLAT = 37.5606343;    var offLAT = 0.0; //var offLAT = -0.0004;
+    var curLON = 126.9934868;   var subLON = 126.9934868;   var offLON = 0.0;
+    var curANG = 0.0;          var subANG = 0.0;
+    var curSOL = 0;            var subSOL = 0;    
+    var curLatLon = null;      var subLatLon = null; 
+    var mapcenterLatLon1 = null;var mapcenterLatLon2 = null;
+    var curArrowMarker = null;  var subArrowMarker = null;
+    var curCircleMarker = null; var subCircleMarker = null;
+    var curCenterMarker = null; var subCenterMarker = null;
+
+
+     
+    var rm_BN_DTMS, rm_BN_ATT0, rm_BN_ATT1, rm_BN_ATT2, rm_BN_GYR0, rm_BN_GYR1, rm_BN_GYR2, rm_BN_ACC0, rm_BN_ACC1, rm_BN_ACC2;
+    var vrm_BN_DTMS, vrm_BN_ATT0, vrm_BN_ATT1, vrm_BN_ATT2, vrm_BN_GYR0, vrm_BN_GYR1, vrm_BN_GYR2, vrm_BN_ACC0, vrm_BN_ACC1, vrm_BN_ACC2;
+
+    var rm_EB_DTMS, rm_EB_ATT0, rm_EB_ATT1, rm_EB_ATT2, rm_EB_GYR0, rm_EB_GYR1, rm_EB_GYR2, rm_EB_ACC0, rm_EB_ACC1, rm_EB_ACC2;
+    var vrm_EB_DTMS, vrm_EB_ATT0, vrm_EB_ATT1, vrm_EB_ATT2, vrm_EB_GYR0, vrm_EB_GYR1, vrm_EB_GYR2, vrm_EB_ACC0, vrm_EB_ACC1, vrm_EB_ACC2;
+
+    var rm_EXI00, rm_EXI01, rm_EXI10, rm_EXI11, rm_EXI20, rm_EXI21, rm_EXI30, rm_EXI31, rm_EXI40, rm_EXI41;
+    var vrm_EXI00, vrm_EXI01, vrm_EXI10, vrm_EXI11, vrm_EXI20, vrm_EXI21, vrm_EXI30, vrm_EXI31, vrm_EXI40, vrm_EXI41;
+    var vrm_selEXI = 0;
+    var vrm_selClassID =0, vrm_selClassID_prev =0;
+    var vrm_selDrivingID =0, vrm_selDrivingID_prev =0;
+
+    var rm_TerrainType0, rm_TerrainType1, rm_TerrainType2, rm_TerrainType3, rm_TerrainType4,  rm_TerrainType5, rm_TerrainType6, rm_TerrainType7, rm_TerrainType8;
+
+    var rm_PTW0, rm_PTW1, rm_PTW2;
+    var vrm_PTW0, vrm_PTW1, vrm_PTW2;
+
+    var rm_cam_view, rm_cam_img, rm_cam_img_url, rm_cam_img_url2;
+    var rm_speed_view;
+
+    var tm_LOGO, tm_MAIN, tm_ETH, tm_WIFI, tm_CAN, tm_RS232, tm_BTSRL, tm_SOL, tm_GPS1, tm_GPS2, tm_NTRIP, tm_EBIMU, tm_EXIMU, tm_ADIMU, tm_OBDBT, tm_CARCAN, tm_CAMERA, tm_DRREADY;
+    //var tm_ADI_FTVAL, tm_ADI_GAIN, tm_ADI_DTMS, tm_ADI_TEMP, tm_ADI_AXS, tm_ADI_AYS, tm_ADI_AZS, tm_ADI_GXS, tm_ADI_GYS, tm_ADI_GZS, tm_ADI_WHL;
+    var lm_SYS_SRC, lm_SYS_ID, lm_SYS_DT, lm_SYS_RDT, lm_SYS_TM, lm_SYS_PWR, lm_SOL_TYPE, lm_SOL_LAT, lm_SOL_LON, lm_SOL_HEIGHT, lm_SOL_HEAD, lm_SOL_SPEED, lm_SOL_DATE, lm_SOL_TIME;
+    var lm_U0_STATE, lm_U0_DT, lm_U0_NUMSV, lm_U0_CRRSLN, lm_U0_LAT, lm_U0_LON, lm_U0_HEIGHT, lm_U0_HMSL, lm_U0_HACC, lm_U0_VACC, lm_U0_PDOP, lm_U0_RTCM, lm_U0_FIXTYPE, lm_U0_I2C;
+    var lm_U1_STATE, lm_U1_DT, lm_U1_NUMSV, lm_U1_CRRSLN, lm_U1_LAT, lm_U1_LON, lm_U1_HEIGHT, lm_U1_HMSL, lm_U1_HACC, lm_U1_VACC, lm_U1_PDOP, lm_U1_RTCM, lm_U1_FIXTYPE, lm_U1_I2C, lm_NTRIP_BYTES;
+    var rm_SPD_SRC, rm_SPD_DATA, rm_DIR_SRC, rm_DIR_DATA, rm_CAR_WHBSE, rm_CAR_FDIST, rm_CAR_RDIST, rm_CAR_TRKW, rm_CAR_CAN, rm_SPD_CALB, rm_SPD_RATIO;
+    //var rm_IMU_DT, rm_IMU_ROLL, rm_IMU_PITCH, rm_IMU_YAW, rm_IMU_GYRO_X, rm_IMU_GYRO_Y, rm_IMU_GYRO_Z, rm_IMU_ACC_X, rm_IMU_ACC_Y, rm_IMU_ACC_Z, rm_EBI_WHL_DEG;
+    var rm_SYST_IESP32, rm_SYST_IOBD, rm_SYST_INTRIP, rm_SYST_IEBIMU, rm_SYST_IEXIMU, rm_SYST_IADIMU, rm_SYST_ICARCAN, rm_SYST_IWHLTCK, rm_SYST_ICAMERA;
+    var rm_SYST_OPOWER, rm_SYST_OESP32, rm_SYST_OETH, rm_SYST_OCAN, rm_SYST_ORS232, rm_SYST_ORS485, rm_SYST_OWIFI, rm_SYST_OBT;
+    
+    var rm_EBIMU_RATE, rm_EBIMU_SENS, rm_EBIMU_LPFA, rm_EBIMU_EAVC, rm_EBIMU_EAGC, rm_EBIMU_CALB, rm_EBIMU_YRSRC;
+    var vtm_LOGO, vtm_MAIN, vtm_ETH, vtm_WIFI, vtm_CAN, vtm_RS232, vtm_BTSRL, vtm_SOL, vtm_GPS1, vtm_GPS2, vtm_NTRIP, vtm_EBIMU, vtm_EXIMU, vtm_ADIMU, vtm_OBDBT, vtm_CARCAN, vtm_CAMERA, vtm_DRREADY;
+    //var vtm_ADI_FTVAL, vtm_ADI_GAIN, vtm_ADI_DTMS, vtm_ADI_TEMP, vtm_ADI_AXS, vtm_ADI_AYS, vtm_ADI_AZS, vtm_ADI_GXS, vtm_ADI_GYS, vtm_ADI_GZS, vtm_ADI_WHL;
+    var vlm_SYS_SRC, vlm_SYS_ID, vlm_SYS_DT, vlm_SYS_FT, vlm_SYS_RDT, vlm_SYS_RFT, vlm_SYS_TM, vlm_SYS_PWR, vlm_SOL_TYPE, vlm_SOL_LAT, vlm_SOL_LON, vlm_SOL_HEIGHT, vlm_SOL_HEAD, vlm_SOL_SPEED, vlm_SOL_DATE, vlm_SOL_TIME;
+    var vlm_U0_STATE, vlm_U0_DT, vlm_U0_NUMSV, vlm_U0_CRRSLN, vlm_U0_LAT, vlm_U0_LON, vlm_U0_HEIGHT, vlm_U0_HMSL, vlm_U0_HACC, vlm_U0_VACC, vlm_U0_PDOP, vlm_U0_RTCM, vlm_U0_FIXTYPE, vlm_U0_FIXOK, vlm_U0_FIXDIFFSOL, vlm_U0_I2C_ONLINE, vlm_U0_CBF_ONLINE, vlm_U0_LLH_VALID;; 
+    var vlm_U1_STATE, vlm_U1_DT, vlm_U1_NUMSV, vlm_U1_CRRSLN, vlm_U1_LAT, vlm_U1_LON, vlm_U1_HEIGHT, vlm_U1_HMSL, vlm_U1_HACC, vlm_U1_VACC, vlm_U1_PDOP, vlm_U1_RTCM, vlm_U1_FIXTYPE, vlm_U1_FIXOK, vlm_U1_FIXDIFFSOL, vlm_U1_I2C_ONLINE, vlm_U1_CBF_ONLINE, vlm_U1_LLH_VALID;; 
+    var vlm_NTRIP_BYTES;
+    var vlm_SUB_LAT, vlm_SUB_LON, vlm_SUB_HEIGHT, vlm_SUB_HEAD, vlm_SUB_TYPE;
+    var vrm_SPD_SRC, vrm_SPD_DATA, vrm_DIR_SRC, vrm_DIR_DATA, vrm_CAR_WHBSE, vrm_CAR_FDIST, vrm_CAR_RDIST, vrm_CAR_TRKW, vrm_CAR_CAN, vrm_SPD_CALB, vrm_SPD_RATIO;
+    //var vrm_IMU_DT, vrm_IMU_ROLL, vrm_IMU_PITCH, vrm_IMU_YAW, vrm_IMU_GYRO_X, vrm_IMU_GYRO_Y, vrm_IMU_GYRO_Z, vrm_IMU_ACC_X, vrm_IMU_ACC_Y, vrm_IMU_ACC_Z, vrm_EBI_WHL_DEG;
+    var vrm_SYST_IESP32, vrm_SYST_IOBD, vrm_SYST_INTRIP, vrm_SYST_IEBIMU, vrm_SYST_IEXIMU, vrm_SYST_IADIMU, vrm_SYST_ICARCAN, vrm_SYST_IWHLTCK, vrm_SYST_ICAMERA, vrm_SYST_EBICAL;
+    var vrm_SYST_OPOWER, vrm_SYST_OESP32, vrm_SYST_OETH, vrm_SYST_OCAN, vrm_SYST_ORS232, vrm_SYST_ORS485, vrm_SYST_OWIFI, vrm_SYST_OBT;
+    var vrm_EBIMU_RATE, vrm_EBIMU_SENS, vrm_EBIMU_LPFA, vrm_EBIMU_EAVC, vrm_EBIMU_EAGC, vrm_EBIMU_CALB, vrm_EBIMU_YRSRC;
+    var vrm_EBI_YRT_DEG, vrm_EXI_YRT_DEG, vrm_CAM_YRT_DEG, vrm_CAM_SPD_MS;
+
+    var vbm_TIMER_HZ, vbm_DR_SPD_KMH, vbm_DR_ANG_VEL;    
+    var vbm_CAR_SR_BT1, vbm_CAR_SR_BT2, vbm_CAR_SR_BT3, vbm_CAR_SR_BT4, vbm_CAR_SR_BT5;
+    var vbm_CAR_SR_DT1, vbm_CAR_SR_DT2, vbm_CAR_SR_DT3, vbm_CAR_SR_DT4, vbm_CAR_SR_DT5;
+    var vbm_CAR_SPD_KMH, vbm_CAR_STR_DEG, vbm_CAR_RATIO1, vbm_CAR_RATIO2, vbm_CAR_RATIO3;
+    var vbm_CAR_TRV_DIST1, vbm_CAR_TRV_DIST2, vbm_CAR_TRV_DIST3;
+
+    var td_top_alarm, td_top_notice;
+    var clr_sol_4   = '#00cc00', sub_sol_4  = '#0099ff';
+    var clr_sol_12  = '#cc9900', sub_sol_12 = '#00b3b3';
+    var clr_sol_6   = '#ff0080', sub_sol_6  = '#ff6600';
+    var clr_sol_0   = '#0069d9', sub_sol_0  = '#0069d9';
+    var clr_sol_no  = '#0069d9', sub_sol_no = '#0069d9';
+    var counter = 0.0;
+    var screen_mode = 0;
+
+    var bm_TIMER_HZ, bm_DR_SPD_KMH, bm_DR_ANG_VEL;
+    var bm_CAR_SPD_KMH, bm_CAR_TRV_DIST1, bm_CAR_TRV_DIST2;
+    var bm_CAR_STR_DEG, bm_CAR_RATIO1, bm_CAR_RATIO2, bm_CAR_RATIO3;
+
+    var bm_CAR_SR_BT1, bm_CAR_SR_BT2, bm_CAR_SR_BT3, bm_CAR_SR_BT4, bm_CAR_SR_BT5;
+    var bm_CAR_SR_DT1, bm_CAR_SR_DT2, bm_CAR_SR_DT3, bm_CAR_SR_DT4, bm_CAR_SR_DT5;
+
+    var rm_PATH_ID, rm_PATH_CLR, rm_PATH_SEL, rm_PATH_SEL_OPT, rm_PATH_BTN1;
+    var rm_DIST_SEL, rm_DIST_SEL_OPT;
+
+    var bt_menu_gui_terrain, bt_menu_gui_driving;
+    var vrm_sel_class_mode = 0; // 0:driving, 1:terrain
+    
+    var rm_SPDVIEW_SPD, rm_SPDVIEW_KM1, rm_SPDVIEW_KM2;
+
+    const MAX_WP_LEN = 32000;
+    const POLY_COLOR = ['#1fdc2c','#1fdcdb','#1fa9dc','#1f63dc','#1f24dc','#5d1fdc','#9f1fdc','#dc1f86','#dc351f','#dcb51f'];
+    
+    var DIVSIZE = 100;
+    var wp_polyLines = new Array(10);
+    var wp_polyDistance = new Array(10);
+    var wp_polyIdx = 0;
+    
+    var wp_dist_offset = 10.0;
+    var wp_position_adding = false;
+    var wp_position_adding_cnt = 0;
+    var wp_prev_ms = Date.now();
+
+    var wp_curr_lat=0.0, wp_curr_lon=0.0;
+
+    var myInfoWindow;
+    
+    function wp_init()
+    {
+        for(let i=0; i<10; i++)
+        {
+            wp_polyLines[i] = new google.maps.Polyline({geodesic:true, strokeColor: POLY_COLOR[i], strokeOpacity: 0.5, strokeWeight:3.0});            
+            wp_polyDistance[i] = 0;
+        } 
+        
+        
+        //wp_update();
+        map.addListener('click', wp_on_click);
+        map.addListener('rightclick', wp_on_rightclick);
+
+        wp_polyIdx = 0;
+        wp_polyLines[0].setMap(map);
+        
+        //setTimeout(wp_on_button_load, 5000);
+
+        /*
+        myInfoWindow = new google.maps.InfoWindow();
+        google.maps.event.addListener(wp_polyLines[0], 'mouseover', function() {//myInfoWindow.setContent("Path distance: " + wp_polyDistance[0].toFixed(2) + " km");            
+            myInfoWindow.open(map);
+        });
+        google.maps.event.addListener(wp_polyLines[0], 'click', function() {
+            
+            //myInfoWindow.setContent("Path distance: " + wp_polyDistance[0].toFixed(2) + " km");            
+            myInfoWindow.open(map);
+        });
+        google.maps.event.addListener(wp_polyLines[0], 'mouseout', function() {myInfoWindow.close();});
+        */
+    }
+    function wp_update_timer()
+    {
+        wp_addLatLon(wp_polyIdx, wp_curr_lat, wp_curr_lon, false);
+    }
+    function wp_on_click(event)
+    {        
+        //wp_addLatLon(wp_polyIdx, event.latLng.lat(), event.latLng.lng());
+
+       //new google.maps.Marker({position:event.latLng, title: '#' + path.getLength(), map:map,});
+    }
+    function wp_on_rightclick(event)
+    {
+        wp_addLatLon(wp_polyIdx, event.latLng.lat(), event.latLng.lng(), true);
+        //myInfoWindow.setContent("Path distance: " + wp_polyDistance[0].toFixed(2) + " km");            
+        //myInfoWindow.open(map);
+
+        //wp_update_path_distance();
+        /*
+        wp_polyLines[wp_polyIdx].setMap(null);
+        if(++wp_polyIdx >= MAX_POLY) wp_polyIdx = 0;
+        wp_polyLines[wp_polyIdx].setMap(map);
+        */
+    }
+    function wp_addLatLon(pid, lat, lon, forced)
+    {
+        if(!forced && !wp_position_adding) { wp_position_adding_cnt = 0; return; }
+        
+        const path = wp_polyLines[pid].getPath();
+        if(path.getLength() >= MAX_WP_LEN)
+        {
+            alert("MAX_PATH_LEN: " + MAX_WP_LEN);
+            wp_position_adding = false;
+            wp_position_adding_cnt = 0;
+            wp_sync_gui_elements();
+            return;
+        }
+
+        var location = new google.maps.LatLng(lat, lon);
+        if(path.getLength() > 0)
+        {
+            var dist = google.maps.geometry.spherical.computeDistanceBetween(path.getAt(path.getLength()-1), location);
+            console.log(wp_dist_offset);
+            if(dist <= wp_dist_offset) return;
+        }        
+        if(wp_position_adding_cnt == 1) { wp_position_adding_cnt = 2; }
+        else if(wp_position_adding_cnt > 1) { path.push(location); }
+        
+        
+        wp_sync_gui_elements();
+
+        if(Date.now()-wp_prev_ms >= 1000)
+        {
+            wp_update_path_distance();
+            wp_prev_ms = Date.now();
+        }      
+    }
+    
+    function wp_clear_path_data()
+    {
+        wp_polyLines[wp_polyIdx].getPath().clear();        
+        wp_polyDistance[wp_polyIdx] = 0;        
+    }
+    function wp_on_button_adding()
+    {
+        wp_position_adding = !wp_position_adding;
+        wp_sync_gui_elements();        
+        if(wp_position_adding) wp_position_adding_cnt = 1;
+        else wp_position_adding_cnt = 0;
+    }
+    function wp_on_adding(adding)
+    {
+        wp_position_adding = adding;
+        wp_sync_gui_elements();        
+        if(wp_position_adding) wp_position_adding_cnt = 1;
+        else wp_position_adding_cnt = 0;
+    }
+    function wp_update_path_distance()
+    {
+        wp_polyDistance[wp_polyIdx] = google.maps.geometry.spherical.computeLength(wp_polyLines[wp_polyIdx].getPath());
+        var total_dist = 0;
+        for(let i=0; i<10; i++) total_dist += wp_polyDistance[i];
+        //alert(wp_polyDistance[wp_polyIdx]);
+        rm_PATH_ID.innerText = (wp_polyDistance[wp_polyIdx] / 1000.0).toFixed(1) + ' (' + (total_dist / 1000.0).toFixed(1) + ')';
+    }
+    function wp_on_button_clear()
+    {
+        wp_clear_path_data();
+        wp_update_path_distance();
+        wp_position_adding = false;
+        wp_position_adding_cnt = 0;
+        wp_sync_gui_elements();
+    }
+    function wp_sync_gui_elements()
+    {
+        if(wp_position_adding) { rm_PATH_BTN1.style.backgroundColor = 'rgb(7, 84, 179)'; rm_PATH_BTN1.innerText = 'Adding...';}
+        else {rm_PATH_BTN1.style.backgroundColor = 'rgb(10, 50, 100)'; rm_PATH_BTN1.innerText = 'Stopped';}        
+
+        rm_PATH_CLR.style.backgroundColor = POLY_COLOR[wp_polyIdx];
+        rm_PATH_CLR.innerText = '[' + wp_polyIdx + '] ' + wp_polyLines[wp_polyIdx].getPath().getLength();
+        //rm_PATH_CLR.innerText = wp_polyLines[wp_polyIdx].getPath().getLength();
+    }
+    function wp_on_change_path_sel()
+    {
+        wp_polyLines[wp_polyIdx].setMap(null);
+
+        wp_polyIdx = rm_PATH_SEL.value;
+        
+        strMsg = "[pth_sel]" + wp_polyIdx;
+        window.chrome.webview.postMessage(strMsg);
+
+        wp_polyLines[wp_polyIdx].setMap(map);
+
+        wp_sync_gui_elements();
+        
+    }
+    function wp_on_change_dist_sel()
+    {
+        wp_dist_offset = rm_DIST_SEL.value;
+
+        strMsg = "[pth_dos]" + wp_dist_offset;
+        window.chrome.webview.postMessage(strMsg);
+    }
+    function wp_on_button_save()
+    { 
+        var strMsg;
+        
+
+        strMsg = "[pth_inf]";
+        strMsg += (wp_polyIdx + "," + wp_dist_offset + "," + DIVSIZE + ",");
+        window.chrome.webview.postMessage(strMsg);
+        //alert(strMsg);
+
+        var currCnt = 0;
+        var pathCnt = 0;
+        var pathBlock = 0;
+        var currIdx = 0;
+
+        for(let i=0; i<10; i++) 
+        {
+            pathCnt = wp_polyLines[i].getPath().getLength();
+            currCnt = 0;
+            pathBlock = parseInt(pathCnt/DIVSIZE);
+
+            strMsg = "[pth_cnt]" + i + "," + wp_polyLines[i].getPath().getLength() + ",";
+            window.chrome.webview.postMessage(strMsg);
+                        
+            for(let j=0; j<=pathBlock; j++)
+            {
+                currCnt = DIVSIZE;
+                if(j == pathBlock) currCnt = parseInt(pathCnt % DIVSIZE); 
+                strMsg = ("[pth_dat]" + i + "," + j + "," + currCnt + ",");
+            
+                if(currCnt > 0)
+                {
+                    for(let k=0; k<currCnt; k++)
+                    {
+                        currIdx = DIVSIZE*j + k;                    
+                        strMsg += wp_polyLines[i].getPath().getAt(currIdx).lat().toFixed(7) + "," + wp_polyLines[i].getPath().getAt(currIdx).lng().toFixed(7) + ",";                    
+                    }                                
+
+                    window.chrome.webview.postMessage(strMsg);
+                    //alert(strMsg);
+                }
+            }
+        }
+        strMsg = "[pth_end]";
+        window.chrome.webview.postMessage(strMsg);
+    }
+    function wp_on_button_load()
+    { 
+        for(let i=0; i<10; i++)
+        {
+            wp_polyLines[i].getPath().clear();        
+            wp_polyDistance[i] = 0;              
+            wp_polyLines[i].setMap(null);
+        }
+
+        var strMsg = "[pth_lad]"; 
+        window.chrome.webview.postMessage(strMsg);        
+        //alert(strMsg);
+    }
+    function wp_update_info(poly_idx, dist_offset, div_size)
+    {
+        wp_polyIdx = poly_idx;
+        wp_dist_offset = dist_offset;
+        DIVSIZE = div_size;
+
+        for(let i=0; i<10; i++) rm_PATH_SEL_OPT[i].selected = false;        
+        rm_PATH_SEL_OPT[wp_polyIdx].selected = true;
+        //rm_PATH_SEL.value = wp_polyIdx;
+
+        for(let i=0; i<7; i++) 
+        {
+            if(rm_DIST_SEL_OPT[i].value == wp_dist_offset) rm_DIST_SEL_OPT[i].selected = true;    
+            else rm_DIST_SEL_OPT[i].selected = false;        
+        }
+        //rm_DIST_SEL.value = wp_dist_offset;
+       
+        wp_polyLines[wp_polyIdx].setMap(map);
+        wp_sync_gui_elements();
+
+    }
+    function wp_update_data_add_pos(idx, lat, lon)
+    {   
+        wp_polyLines[idx].getPath().push(new google.maps.LatLng(lat, lon));        
+    }
+    function wp_update_data_add_end()
+    {
+        //for(let i=0; i<10; i++) wp_polyLines[i].setMap(null);
+        //wp_polyLines[wp_polyIdx].setMap(map);
+
+        var total_dist = 0;
+        for(let i=0; i<10; i++)
+        {
+            wp_polyDistance[i] = google.maps.geometry.spherical.computeLength(wp_polyLines[i].getPath());
+            total_dist += wp_polyDistance[i];    
+        }        
+        rm_PATH_ID.innerText = (wp_polyDistance[wp_polyIdx] / 1000.0).toFixed(1) + ' (' + (total_dist / 1000.0).toFixed(1) + ')';
+        //alert("Path loading done");
+
+        wp_polyLines[wp_polyIdx].setMap(map);
+    }
+
+    function body_onload_handler()
+    {
+        tm_LOGO = document.getElementById('tm_LOGO'); tm_MAIN = document.getElementById('tm_MAIN'); tm_ETH = document.getElementById('tm_ETH'); tm_WIFI = document.getElementById('tm_WIFI');  tm_CAN = document.getElementById('tm_CAN'); tm_RS232 = document.getElementById('tm_RS232'); tm_BTSRL = document.getElementById('tm_BTSRL'); tm_SOL = document.getElementById('tm_SOL'); tm_GPS1 = document.getElementById('tm_GPS1'); tm_GPS2 = document.getElementById('tm_GPS2'); tm_NTRIP = document.getElementById('tm_NTRIP'); tm_EBIMU = document.getElementById('tm_EBIMU'); tm_EXIMU = document.getElementById('tm_EXIMU');  tm_ADIMU = document.getElementById('tm_ADIMU'); tm_OBDBT = document.getElementById('tm_OBDBT'); tm_CARCAN = document.getElementById('tm_CARCAN'); tm_CAMERA = document.getElementById('tm_CAMERA'); tm_DRREADY = document.getElementById('tm_DRREADY');
+        //tm_ADI_FTVAL = document.getElementById('tm_ADI_FTVAL'); tm_ADI_GAIN = document.getElementById('tm_ADI_GAIN'); tm_ADI_DTMS = document.getElementById('tm_ADI_DTMS'); tm_ADI_TEMP = document.getElementById('tm_ADI_TEMP'); tm_ADI_AXS = document.getElementById('tm_ADI_AXS'); tm_ADI_AYS = document.getElementById('tm_ADI_AYS'); tm_ADI_AZS  = document.getElementById('tm_ADI_AZS'); tm_ADI_GXS = document.getElementById('tm_ADI_GXS'); tm_ADI_GYS = document.getElementById('tm_ADI_GYS'); tm_ADI_GZS = document.getElementById('tm_ADI_GZS'); tm_ADI_WHL = document.getElementById('tm_ADI_WHL');
+        lm_SYS_SRC = document.getElementById('lm_SYS_SRC'); lm_SYS_ID = document.getElementById('lm_SYS_ID'); lm_SYS_DT = document.getElementById('lm_SYS_DT'); lm_SYS_RDT = document.getElementById('lm_SYS_RDT'); lm_SYS_TM = document.getElementById('lm_SYS_TM'); lm_SYS_PWR = document.getElementById('lm_SYS_PWR'); lm_SOL_TYPE = document.getElementById('lm_SOL_TYPE'); lm_SOL_LAT = document.getElementById('lm_SOL_LAT'); lm_SOL_LON = document.getElementById('lm_SOL_LON'); lm_SOL_HEIGHT = document.getElementById('lm_SOL_HEIGHT'); lm_SOL_HEAD = document.getElementById('lm_SOL_HEAD'); lm_SOL_SPEED = document.getElementById('lm_SOL_SPEED'); lm_SOL_DATE = document.getElementById('lm_SOL_DATE'); lm_SOL_TIME = document.getElementById('lm_SOL_TIME'); 
+        lm_U0_STATE = document.getElementById('lm_U0_STATE'); lm_U0_DT = document.getElementById('lm_U0_DT'); lm_U0_NUMSV = document.getElementById('lm_U0_NUMSV'); lm_U0_CRRSLN = document.getElementById('lm_U0_CRRSLN'); lm_U0_LAT = document.getElementById('lm_U0_LAT'); lm_U0_LON = document.getElementById('lm_U0_LON'); lm_U0_HEIGHT = document.getElementById('lm_U0_HEIGHT'); lm_U0_HMSL = document.getElementById('lm_U0_HMSL'); lm_U0_HACC = document.getElementById('lm_U0_HACC'); lm_U0_VACC = document.getElementById('lm_U0_VACC'); lm_U0_PDOP = document.getElementById('lm_U0_PDOP'); lm_U0_FIXTYPE = document.getElementById('lm_U0_FIXTYPE'); lm_U0_FIXTYPE=document.getElementById('lm_U0_FIXTYPE'); lm_U0_I2C=document.getElementById('lm_U0_I2C'); lm_U0_RTCM = document.getElementById('lm_U0_RTCM');
+        lm_U1_STATE = document.getElementById('lm_U1_STATE'); lm_U1_DT = document.getElementById('lm_U1_DT'); lm_U1_NUMSV = document.getElementById('lm_U1_NUMSV'); lm_U1_CRRSLN = document.getElementById('lm_U1_CRRSLN'); lm_U1_LAT = document.getElementById('lm_U1_LAT'); lm_U1_LON = document.getElementById('lm_U1_LON'); lm_U1_HEIGHT = document.getElementById('lm_U1_HEIGHT'); lm_U1_HMSL = document.getElementById('lm_U1_HMSL'); lm_U1_HACC = document.getElementById('lm_U1_HACC'); lm_U1_VACC = document.getElementById('lm_U1_VACC'); lm_U1_PDOP = document.getElementById('lm_U1_PDOP'); lm_U1_FIXTYPE = document.getElementById('lm_U1_FIXTYPE'); lm_U1_FIXTYPE=document.getElementById('lm_U1_FIXTYPE'); lm_U1_I2C=document.getElementById('lm_U1_I2C'); lm_U1_RTCM = document.getElementById('lm_U1_RTCM'); lm_NTRIP_BYTES = document.getElementById('lm_NTRIP_BYTES');
+        rm_SPD_SRC = document.getElementById('rm_SPD_SRC'); rm_SPD_DATA = document.getElementById('rm_SPD_DATA'); rm_DIR_SRC = document.getElementById('rm_DIR_SRC'); rm_DIR_DATA = document.getElementById('rm_DIR_DATA'); rm_CAR_WHBSE = document.getElementById('rm_CAR_WHBSE'); rm_CAR_FDIST = document.getElementById('rm_CAR_FDIST'); rm_CAR_RDIST = document.getElementById('rm_CAR_RDIST'); rm_CAR_TRKW = document.getElementById('rm_CAR_TRKW'); rm_CAR_CAN = document.getElementById('rm_CAR_CAN'); rm_SPD_CALB = document.getElementById('rm_SPD_CALB'); rm_SPD_RATIO = document.getElementById('rm_SPD_RATIO'); 
+        //rm_IMU_DT = document.getElementById('rm_IMU_DT'); rm_IMU_ROLL = document.getElementById('rm_IMU_ROLL'); rm_IMU_PITCH = document.getElementById('rm_IMU_PITCH'); rm_IMU_YAW = document.getElementById('rm_IMU_YAW'); rm_IMU_GYRO_X = document.getElementById('rm_IMU_GYRO_X'); rm_IMU_GYRO_Y = document.getElementById('rm_IMU_GYRO_Y'); rm_IMU_GYRO_Z = document.getElementById('rm_IMU_GYRO_Z'); rm_IMU_ACC_X = document.getElementById('rm_IMU_ACC_X'); rm_IMU_ACC_Y = document.getElementById('rm_IMU_ACC_Y'); rm_IMU_ACC_Z = document.getElementById('rm_IMU_ACC_Z'); rm_EBI_WHL_DEG = document.getElementById('rm_EBI_WHL_DEG'); 
+
+        rm_BN_DTMS = document.getElementById('rm_BN_DTMS'); 
+        rm_BN_ATT0 = document.getElementById('rm_BN_ATT0'); rm_BN_ATT1 = document.getElementById('rm_BN_ATT1'); rm_BN_ATT2 = document.getElementById('rm_BN_ATT2'); 
+        rm_BN_GYR0 = document.getElementById('rm_BN_GYR0'); rm_BN_GYR1 = document.getElementById('rm_BN_GYR1'); rm_BN_GYR2 = document.getElementById('rm_BN_GYR2'); 
+        rm_BN_ACC0 = document.getElementById('rm_BN_ACC0'); rm_BN_ACC1 = document.getElementById('rm_BN_ACC1'); rm_BN_ACC2 = document.getElementById('rm_BN_ACC2'); 
+
+        rm_EB_DTMS = document.getElementById('rm_EB_DTMS'); 
+        rm_EB_ATT0 = document.getElementById('rm_EB_ATT0'); rm_EB_ATT1 = document.getElementById('rm_EB_ATT1'); rm_EB_ATT2 = document.getElementById('rm_EB_ATT2'); 
+        rm_EB_GYR0 = document.getElementById('rm_EB_GYR0'); rm_EB_GYR1 = document.getElementById('rm_EB_GYR1'); rm_EB_GYR2 = document.getElementById('rm_EB_GYR2'); 
+        rm_EB_ACC0 = document.getElementById('rm_EB_ACC0'); rm_EB_ACC1 = document.getElementById('rm_EB_ACC1'); rm_EB_ACC2 = document.getElementById('rm_EB_ACC2'); 
+
+        rm_EXI00 = document.getElementById('rm_EXI00'); rm_EXI01 = document.getElementById('rm_EXI01'); 
+        rm_EXI10 = document.getElementById('rm_EXI10'); rm_EXI11 = document.getElementById('rm_EXI11'); 
+        rm_EXI20 = document.getElementById('rm_EXI20'); rm_EXI21 = document.getElementById('rm_EXI21'); 
+        rm_EXI30 = document.getElementById('rm_EXI30'); rm_EXI31 = document.getElementById('rm_EXI31'); 
+        rm_EXI40 = document.getElementById('rm_EXI40'); rm_EXI41 = document.getElementById('rm_EXI41'); 
+        rm_PTW0 = document.getElementById('rm_PTW0'); rm_PTW1 = document.getElementById('rm_PTW1'); rm_PTW2 = document.getElementById('rm_PTW2');
+
+        rm_SYST_IESP32 = document.getElementById('rm_SYST_IESP32'); rm_SYST_IOBD = document.getElementById('rm_SYST_IOBD'); rm_SYST_INTRIP = document.getElementById('rm_SYST_INTRIP'); rm_SYST_IEBIMU = document.getElementById('rm_SYST_IEBIMU'); rm_SYST_IEXIMU = document.getElementById('rm_SYST_IEXIMU'); rm_SYST_IADIMU = document.getElementById('rm_SYST_IADIMU'); rm_SYST_ICARCAN = document.getElementById('rm_SYST_ICARCAN'); rm_SYST_IWHLTCK = document.getElementById('rm_SYST_IWHLTCK'); rm_SYST_ICAMERA = document.getElementById('rm_SYST_ICAMERA'); rm_SYST_OPOWER = document.getElementById('rm_SYST_OPOWER'); rm_SYST_OESP32 = document.getElementById('rm_SYST_OESP32'); rm_SYST_OETH = document.getElementById('rm_SYST_OETH'); rm_SYST_OCAN = document.getElementById('rm_SYST_OCAN'); rm_SYST_ORS232 = document.getElementById('rm_SYST_ORS232'); rm_SYST_ORS485 = document.getElementById('rm_SYST_ORS485'); rm_SYST_OWIFI = document.getElementById('rm_SYST_OWIFI'); rm_SYST_OBT = document.getElementById('rm_SYST_OBT'); 
+        bm_TIMER_HZ = document.getElementById('bm_TIMER_HZ'); bm_DR_SPD_KMH = document.getElementById('bm_DR_SPD_KMH'); bm_DR_ANG_VEL = document.getElementById('bm_DR_ANG_VEL');        
+        rm_EBIMU_RATE = document.getElementById('rm_EBIMU_RATE'); rm_EBIMU_SENS = document.getElementById('rm_EBIMU_SENS'); rm_EBIMU_LPFA = document.getElementById('rm_EBIMU_LPFA'); rm_EBIMU_EAVC = document.getElementById('rm_EBIMU_EAVC'); rm_EBIMU_EAGC = document.getElementById('rm_EBIMU_EAGC'); rm_EBIMU_CALB = document.getElementById('rm_EBIMU_CALB');rm_EBIMU_YRSRC = document.getElementById('rm_EBIMU_YRSRC');
+        document.getElementById('mtb_td1_tbl').style.width='0%'; document.getElementById('mtb_td1_tbl').style.visibility = 'hidden';
+        document.getElementById('mtb_td3_tbl').style.width='0%'; document.getElementById('mtb_td3_tbl').style.visibility = 'hidden';
+        td_top_alarm = document.getElementById('td_top_alarm');    
+        td_top_notice = document.getElementById('td_top_notice');  
+
+        rm_TerrainType0 = document.getElementById('rm_TerrainType0'); 
+        rm_TerrainType1 = document.getElementById('rm_TerrainType1');  
+        rm_TerrainType2 = document.getElementById('rm_TerrainType2');  
+        rm_TerrainType3 = document.getElementById('rm_TerrainType3');  
+        rm_TerrainType4 = document.getElementById('rm_TerrainType4');  
+        rm_TerrainType5 = document.getElementById('rm_TerrainType5');  
+        rm_TerrainType6 = document.getElementById('rm_TerrainType6');  
+        rm_TerrainType7 = document.getElementById('rm_TerrainType7');  
+        rm_TerrainType8 = document.getElementById('rm_TerrainType8');  
+
+        rm_cam_view = document.getElementById('rm_cam_view');  
+        rm_cam_img = document.getElementById('rm_cam_img');  
+        rm_speed_view = document.getElementById('rm_speed_view');  
+
+        rm_SPDVIEW_SPD = document.getElementById('rm_SPDVIEW_SPD');  
+        rm_SPDVIEW_KM1 = document.getElementById('rm_SPDVIEW_KM1');  
+        rm_SPDVIEW_KM2 = document.getElementById('rm_SPDVIEW_KM2');  
+        
+        bm_CAR_SPD_KMH = document.getElementById('bm_CAR_SPD_KMH');
+        bm_CAR_TRV_DIST1 = document.getElementById('bm_CAR_TRV_DIST1');
+        bm_CAR_TRV_DIST2 = document.getElementById('bm_CAR_TRV_DIST2');
+        bm_CAR_STR_DEG = document.getElementById('bm_CAR_STR_DEG');
+        bm_CAR_RATIO1 = document.getElementById('bm_CAR_RATIO1');
+        bm_CAR_RATIO2 = document.getElementById('bm_CAR_RATIO2');
+        bm_CAR_RATIO3 = document.getElementById('bm_CAR_RATIO3');
+
+        bm_CAR_SR_DT1 = document.getElementById('bm_CAR_SR_DT1');  bm_CAR_SR_BT1 = document.getElementById('bm_CAR_SR_BT1');
+        bm_CAR_SR_DT2 = document.getElementById('bm_CAR_SR_DT2');  bm_CAR_SR_BT2 = document.getElementById('bm_CAR_SR_BT2');
+        bm_CAR_SR_DT3 = document.getElementById('bm_CAR_SR_DT3');  bm_CAR_SR_BT3 = document.getElementById('bm_CAR_SR_BT3');
+        bm_CAR_SR_DT4 = document.getElementById('bm_CAR_SR_DT4');  bm_CAR_SR_BT4 = document.getElementById('bm_CAR_SR_BT4');
+        bm_CAR_SR_DT5 = document.getElementById('bm_CAR_SR_DT5');  bm_CAR_SR_BT5 = document.getElementById('bm_CAR_SR_BT5');
+        
+        rm_PATH_ID  = document.getElementById('rm_PATH_ID');
+        rm_PATH_CLR = document.getElementById('rm_PATH_CLR');
+        rm_PATH_SEL = document.getElementById('rm_PATH_SEL');
+        rm_PATH_SEL_OPT = rm_PATH_SEL.options;
+        rm_PATH_BTN1 = document.getElementById('rm_PATH_BTN1');
+        rm_DIST_SEL = document.getElementById('rm_DIST_SEL');
+        rm_DIST_SEL_OPT = rm_DIST_SEL.options;
+         
+        for(let i=0; i<10; i++) rm_PATH_SEL_OPT[i].selected = false;        
+        rm_PATH_SEL_OPT[0].selected = true;
+
+        for(let i=0; i<7; i++) 
+        {
+            if(rm_DIST_SEL_OPT[i].value == wp_dist_offset) rm_DIST_SEL_OPT[i].selected = true;    
+            else rm_DIST_SEL_OPT[i].selected = false;        
+        }
+        
+        bt_menu_gui_terrain = document.getElementById('bt_menu_gui_terrain');
+        bt_menu_gui_driving = document.getElementById('bt_menu_gui_driving');
+
+        rm_PATH_CLR.style.backgroundColor = POLY_COLOR[wp_polyIdx];
+        rm_PATH_CLR.style.color = 'black';
+        rm_PATH_CLR.innerText ='0';
+
+        init_eb_chart(); 
+        init_ad_chart(); 
+        init_ex_chart(); 
+        init_dt_chart();
+
+        //show_img_overlay(true);
+        logo_click_handler();
+        //ebimu_overlay();
+        debug_overlay();
+        
+        //show_cam_view();
+        update_canvas_steer();
+        update_canvas_ratio();
+
+        bt_menu_class_driving();
+
+        setTimeout(wp_on_button_load, 2000);
+    }
+    function update_cam_img_src(src, src2) { rm_cam_img_url = src; rm_cam_img_url2 = src2; }
+
+    var cam_view_mode = 0;
+    function show_cam_view()
+    {
+        if(++cam_view_mode > 2) cam_view_mode = 0;
+
+        var show = false;
+        switch(cam_view_mode)
+        {
+            case 0: show = false; overlay_on2('rm_cam_view', show, 2, 30, 800, 600, 1.0); break;
+            case 1: show = true; overlay_on2('rm_cam_view', show, 2, 30, 800, 600, 1.0); break;
+            case 2: show = true; overlay_on2('rm_cam_view', show, 2, 30, 800, 600, 0.8); break;
+        }
+        
+        if(show) { rm_cam_img.src = rm_cam_img_url; rm_cam_img.setAttribute('alt', rm_cam_img_url2); rm_cam_img.setAttribute('title', rm_cam_img_url2); if(cam_view_mode == 2) rm_cam_img.opacity=1.0; else rm_cam_img.opacity=1.0;  }
+        else     { rm_cam_img.src = ''; rm_cam_img.setAttribute('alt', ''); rm_cam_img.setAttribute('title', '');}
+    }
+    function show_cam_view2(show)
+    {
+        cam_view_mode = (show) ? 1 : 0;
+        overlay_on2('rm_cam_view', show, 2, 30, 800, 600, 1.0); 
+       
+        if(show) { rm_cam_img.src = rm_cam_img_url; rm_cam_img.setAttribute('alt', rm_cam_img_url2); rm_cam_img.setAttribute('title', rm_cam_img_url2); rm_cam_img.opacity=1.0;}
+        else     { rm_cam_img.src = ''; rm_cam_img.setAttribute('alt', ''); rm_cam_img.setAttribute('title', '');}
+    }
+
+    var speed_view_mode = 0;
+    function show_speed_view()
+    {
+        if(++speed_view_mode > 1) speed_view_mode = 0;
+
+        var show = false;
+        switch(speed_view_mode)
+        {
+            case 0: show = false; overlay_on2('rm_speed_view', show, 2, 25, 400, 250, 1.0); break;
+            case 1: show = true; overlay_on2('rm_speed_view', show, 2, 25, 400, 250, 1.0); break;            
+        }
+    }
+
+    function button_hout2(obj, idx) { 
+        if(vrm_sel_class_mode == 0)
+            obj.style.backgroundColor = (vrm_selDrivingID == idx) ? '#4ab7fe' : '#21334b'; 
+        else
+            obj.style.backgroundColor = (vrm_selClassID == idx) ? '#4ab7fe' : '#21334b'; 
+    }
+    function updateBottomGuiClass()
+    {
+        if(vrm_sel_class_mode == 0)
+        {
+            if(vrm_selDrivingID != vrm_selDrivingID_prev)
+            {
+                //alert(vrm_selClassID);
+                vrm_selDrivingID_prev = vrm_selDrivingID;
+                if(rm_DrivingType0) rm_DrivingType0.style.backgroundColor = (vrm_selDrivingID == 0) ? '#4ab7fe' : '#21334b';  
+                if(rm_DrivingType1) rm_DrivingType1.style.backgroundColor = (vrm_selDrivingID == 1) ? '#4ab7fe' : '#21334b';   
+                if(rm_DrivingType2) rm_DrivingType2.style.backgroundColor = (vrm_selDrivingID == 2) ? '#4ab7fe' : '#21334b';   
+                if(rm_DrivingType3) rm_DrivingType3.style.backgroundColor = (vrm_selDrivingID == 3) ? '#4ab7fe' : '#21334b';   
+                if(rm_DrivingType4) rm_DrivingType4.style.backgroundColor = (vrm_selDrivingID == 4) ? '#4ab7fe' : '#21334b';   
+                if(rm_DrivingType5) rm_DrivingType5.style.backgroundColor = (vrm_selDrivingID == 5) ? '#4ab7fe' : '#21334b';   
+                if(rm_DrivingType6) rm_DrivingType6.style.backgroundColor = (vrm_selDrivingID == 6) ? '#4ab7fe' : '#21334b';   
+                if(rm_DrivingType7) rm_DrivingType7.style.backgroundColor = (vrm_selDrivingID == 7) ? '#4ab7fe' : '#21334b';   
+                if(rm_DrivingType8) rm_DrivingType8.style.backgroundColor = (vrm_selDrivingID == 8) ? '#4ab7fe' : '#21334b';   
+            }
+        }
+        else
+        {
+            if(vrm_selClassID != vrm_selClassID_prev)
+            {
+                //alert(vrm_selClassID);
+                vrm_selClassID_prev = vrm_selClassID;
+                if(rm_TerrainType0) rm_TerrainType0.style.backgroundColor = (vrm_selClassID == 0) ? '#4ab7fe' : '#21334b';  
+                if(rm_TerrainType1) rm_TerrainType1.style.backgroundColor = (vrm_selClassID == 1) ? '#4ab7fe' : '#21334b';   
+                if(rm_TerrainType2) rm_TerrainType2.style.backgroundColor = (vrm_selClassID == 2) ? '#4ab7fe' : '#21334b';   
+                if(rm_TerrainType3) rm_TerrainType3.style.backgroundColor = (vrm_selClassID == 3) ? '#4ab7fe' : '#21334b';   
+                if(rm_TerrainType4) rm_TerrainType4.style.backgroundColor = (vrm_selClassID == 4) ? '#4ab7fe' : '#21334b';   
+                if(rm_TerrainType5) rm_TerrainType5.style.backgroundColor = (vrm_selClassID == 5) ? '#4ab7fe' : '#21334b';   
+                if(rm_TerrainType6) rm_TerrainType6.style.backgroundColor = (vrm_selClassID == 6) ? '#4ab7fe' : '#21334b';   
+                if(rm_TerrainType7) rm_TerrainType7.style.backgroundColor = (vrm_selClassID == 7) ? '#4ab7fe' : '#21334b';   
+                if(rm_TerrainType8) rm_TerrainType8.style.backgroundColor = (vrm_selClassID == 8) ? '#4ab7fe' : '#21334b';   
+            }
+        }
+    }
+    function updateMapViewer2(str_tm, str_lm, str_rm)
+    {
+        parseRoverData(str_tm, str_lm, str_rm);
+        updateMapCenter();
+        updateMainRoverMarker();
+        updateMainRoverMenu();
+        updateSubRoverMarker();
+        if(screen_mode == 2) {  updateDirMarker(); } else { disableDirMarker(); }
+        update_eb_chart();
+        update_ad_chart();
+        update_ex_chart();
+        update_dt_chart();
+
+        updateBottomGuiClass();
+
+        update_canvas_steer();
+        update_canvas_ratio();
+
+        wp_update_timer();
+    }
+    function updateRoverData()
+    {
+        var str_tm = '0,200,0,16,0,0,0,6,0,0,0,200,0,21,0,0,0,1,5,5,6,1,1,0,100,46,19,0.016250,0.187500,-0.983750,-0.300000,0.150000,0.031250,0.000000,';
+        var str_lm = '0,0,5,0,1,6,36.349762246,127.390125562,82.05,178.45,0.00,22-05-01,00:19:25.681,0,16,0,0,0,0.000000000,0.000000000,0.00,-17.00,429496.719,429496.719,99.990,0,115,0,0,0,0.000000000,0.000000000,0.00,-17.00,429496.719,429496.719,99.990,0,0.000000000,0.000000000,0.00,178.45,4,0,0,0,0,0,0,';
+        var str_rm = '3,0.000,0,0.000,3.06,3.06,0.00,2.00,1,5,-169.220,-0.300,-22.980,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0,0,0.000,1,0,0,1,0,1,0,0,0,1,1,0,0,1,0,0,0,';
+        parseRoverData(str_tm, str_lm, str_rm);
+    }
+    function parseRoverData(str_tm, str_lm, str_rm)
+    {
+        var arr_str_tm = str_tm.split(',');
+        var arr_str_lm = str_lm.split(',');
+        var arr_str_rm = str_rm.split(',');
+
+        vtm_LOGO = parseInt(arr_str_tm[0]); vtm_MAIN = parseInt(arr_str_tm[1]); vtm_ETH = parseInt(arr_str_tm[2]); vtm_WIFI = parseInt(arr_str_tm[3]); vtm_CAN = parseInt(arr_str_tm[4]); vtm_RS232 = parseInt(arr_str_tm[5]); vtm_BTSRL = parseInt(arr_str_tm[6]); vtm_SOL = parseInt(arr_str_tm[7]); vtm_GPS1 = parseInt(arr_str_tm[8]); vtm_GPS2 = parseInt(arr_str_tm[9]); vtm_NTRIP = parseInt(arr_str_tm[10]); vtm_EBIMU = parseInt(arr_str_tm[11]); vtm_EXIMU = parseInt(arr_str_tm[12]); vtm_ADIMU = parseInt(arr_str_tm[13]); vtm_OBDBT = parseInt(arr_str_tm[14]); vtm_CARCAN = parseInt(arr_str_tm[15]); vtm_CAMERA = parseInt(arr_str_tm[16]); vtm_DRREADY = parseInt(arr_str_tm[17]);
+
+        vrm_SYST_IESP32 = parseInt(arr_str_tm[18]); vrm_SYST_IOBD = parseInt(arr_str_tm[19]); vrm_SYST_INTRIP = parseInt(arr_str_tm[20]); vrm_SYST_IEBIMU = parseInt(arr_str_tm[21]); vrm_SYST_IEXIMU = parseInt(arr_str_tm[22]); vrm_SYST_IADIMU = parseInt(arr_str_tm[23]); vrm_SYST_ICARCAN = parseInt(arr_str_tm[24]); vrm_SYST_EBICAL = parseInt(arr_str_tm[25]); vrm_SYST_ICAMERA = parseInt(arr_str_tm[26]);
+        vrm_SYST_OPOWER = parseInt(arr_str_tm[27]); vrm_SYST_OESP32 = parseInt(arr_str_tm[28]); vrm_SYST_OETH = parseInt(arr_str_tm[29]); vrm_SYST_OCAN = parseInt(arr_str_tm[30]); vrm_SYST_ORS232 = parseInt(arr_str_tm[31]); vrm_SYST_ORS485 = parseInt(arr_str_tm[32]); vrm_SYST_OWIFI = parseInt(arr_str_tm[33]); vrm_SYST_OBT = parseInt(arr_str_tm[34]); vrm_SPD_RATIO = parseFloat(arr_str_tm[35]);
+        vlm_NTRIP_BYTES = parseInt(arr_str_tm[36]);        
+        vlm_SUB_LAT = parseFloat(arr_str_tm[37]); vlm_SUB_LON = parseFloat(arr_str_tm[38]); vlm_SUB_HEIGHT = parseFloat(arr_str_tm[39]); vlm_SUB_HEAD = parseFloat(arr_str_tm[40]); vlm_SUB_TYPE = parseInt(arr_str_tm[41]);
+        vlm_U0_FIXTYPE = parseInt(arr_str_tm[42]); vlm_U0_FIXOK = parseInt(arr_str_tm[43]); vlm_U0_FIXDIFFSOL = parseInt(arr_str_tm[44]); vlm_U1_FIXTYPE = parseInt(arr_str_tm[45]); vlm_U1_FIXOK = parseInt(arr_str_tm[46]); vlm_U1_FIXDIFFSOL = parseInt(arr_str_tm[47]);
+        vlm_U0_I2C_ONLINE=parseInt(arr_str_tm[48]);vlm_U0_CBF_ONLINE=parseInt(arr_str_tm[49]);vlm_U0_LLH_VALID=parseInt(arr_str_tm[50]);vlm_U1_I2C_ONLINE=parseInt(arr_str_tm[51]);vlm_U1_CBF_ONLINE=parseInt(arr_str_tm[52]);vlm_U1_LLH_VALID=parseInt(arr_str_tm[53]);
+        vlm_SYS_FT=parseInt(arr_str_tm[54]);vlm_SYS_RDT=parseInt(arr_str_tm[55]);vlm_SYS_RFT=parseInt(arr_str_tm[56]);
+        
+
+        vlm_SYS_SRC = parseInt(arr_str_lm[0]); vlm_SYS_ID = parseInt(arr_str_lm[1]); vlm_SYS_DT = parseInt(arr_str_lm[2]); vlm_SYS_TM = parseInt(arr_str_lm[3]); vlm_SYS_PWR = parseInt(arr_str_lm[4]); 
+        vlm_SOL_TYPE = parseInt(arr_str_lm[5]); vlm_SOL_LAT = parseFloat(arr_str_lm[6]); vlm_SOL_LON = parseFloat(arr_str_lm[7]); vlm_SOL_HEIGHT = parseFloat(arr_str_lm[8]); vlm_SOL_HEAD = parseFloat(arr_str_lm[9]); vlm_SOL_SPEED = parseFloat(arr_str_lm[10]); vlm_SOL_DATE = arr_str_lm[11]; vlm_SOL_TIME = arr_str_lm[12];
+        vlm_U0_STATE = parseInt(arr_str_lm[13]); vlm_U0_DT = parseInt(arr_str_lm[14]); vlm_U0_NUMSV = parseInt(arr_str_lm[15]); vlm_U0_CRRSLN = parseInt(arr_str_lm[16]); vlm_U0_RTCM = parseInt(arr_str_lm[17]); vlm_U0_LAT = parseFloat(arr_str_lm[18]); vlm_U0_LON = parseFloat(arr_str_lm[19]); vlm_U0_HEIGHT = parseFloat(arr_str_lm[20]); vlm_U0_HMSL = parseFloat(arr_str_lm[21]); vlm_U0_HACC = parseFloat(arr_str_lm[22]); vlm_U0_VACC = parseFloat(arr_str_lm[23]); vlm_U0_PDOP = parseFloat(arr_str_lm[24]);       
+        vlm_U1_STATE = parseInt(arr_str_lm[25]); vlm_U1_DT = parseInt(arr_str_lm[26]); vlm_U1_NUMSV = parseInt(arr_str_lm[27]); vlm_U1_CRRSLN = parseInt(arr_str_lm[28]); vlm_U1_RTCM = parseInt(arr_str_lm[29]); vlm_U1_LAT = parseFloat(arr_str_lm[30]); vlm_U1_LON = parseFloat(arr_str_lm[31]); vlm_U1_HEIGHT = parseFloat(arr_str_lm[32]); vlm_U1_HMSL = parseFloat(arr_str_lm[33]); vlm_U1_HACC = parseFloat(arr_str_lm[34]); vlm_U1_VACC = parseFloat(arr_str_lm[35]); vlm_U1_PDOP = parseFloat(arr_str_lm[36]);       
+        
+        vbm_CAR_SR_BT1 = parseInt(arr_str_lm[37]);vbm_CAR_SR_BT2 = parseInt(arr_str_lm[38]);vbm_CAR_SR_BT3 = parseInt(arr_str_lm[39]);vbm_CAR_SR_BT4 = parseInt(arr_str_lm[40]);vbm_CAR_SR_BT5 = parseInt(arr_str_lm[41]);
+        vbm_CAR_SR_DT1 = parseInt(arr_str_lm[42]);vbm_CAR_SR_DT2 = parseInt(arr_str_lm[43]);vbm_CAR_SR_DT3 = parseInt(arr_str_lm[44]);vbm_CAR_SR_DT4 = parseInt(arr_str_lm[45]);vbm_CAR_SR_DT5 = parseInt(arr_str_lm[46]);
+        vbm_CAR_SPD_KMH = parseFloat(arr_str_lm[47]); vbm_CAR_STR_DEG = parseFloat(arr_str_lm[48]); vbm_CAR_RATIO1 = parseFloat(arr_str_lm[49]); vbm_CAR_RATIO2 = parseFloat(arr_str_lm[50]); vbm_CAR_RATIO3 = parseFloat(arr_str_lm[51]);
+        vbm_CAR_TRV_DIST1 = parseFloat(arr_str_lm[52])*0.001; vbm_CAR_TRV_DIST2 = parseFloat(arr_str_lm[53])*0.001; vbm_CAR_TRV_DIST3 = parseFloat(arr_str_lm[54]);
+        
+        vrm_SPD_SRC = parseInt(arr_str_rm[0]); vrm_SPD_DATA = parseFloat(arr_str_rm[1]); vrm_DIR_SRC = parseInt(arr_str_rm[2]); vrm_DIR_DATA = parseFloat(arr_str_rm[3]); vrm_CAR_WHBSE = parseFloat(arr_str_rm[4]); vrm_CAR_FDIST = parseFloat(arr_str_rm[5]); vrm_CAR_RDIST = parseFloat(arr_str_rm[6]); vrm_CAR_TRKW = parseFloat(arr_str_rm[7]); vrm_CAR_CAN = parseFloat(arr_str_rm[8]);
+        vrm_BN_DTMS = parseInt(arr_str_rm[9]);
+        vrm_BN_ATT0 = parseFloat(arr_str_rm[10]);   vrm_BN_ATT1 = parseFloat(arr_str_rm[11]);   vrm_BN_ATT2 = parseFloat(arr_str_rm[12]);
+        vrm_BN_GYR0 = parseFloat(arr_str_rm[13]);   vrm_BN_GYR1 = parseFloat(arr_str_rm[14]);   vrm_BN_GYR2 = parseFloat(arr_str_rm[15]);
+        vrm_BN_ACC0 = parseFloat(arr_str_rm[16]);   vrm_BN_ACC1 = parseFloat(arr_str_rm[17]);   vrm_BN_ACC2 = parseFloat(arr_str_rm[18]);
+        vrm_EB_DTMS = parseInt(arr_str_rm[19]);
+        vrm_EB_ATT0 = parseFloat(arr_str_rm[20]);   vrm_EB_ATT1 = parseFloat(arr_str_rm[21]);   vrm_EB_ATT2 = parseFloat(arr_str_rm[22]);
+        vrm_EB_GYR0 = parseFloat(arr_str_rm[23]);   vrm_EB_GYR1 = parseFloat(arr_str_rm[24]);   vrm_EB_GYR2 = parseFloat(arr_str_rm[25]);
+        vrm_EB_ACC0 = parseFloat(arr_str_rm[26]);   vrm_EB_ACC1 = parseFloat(arr_str_rm[27]);   vrm_EB_ACC2 = parseFloat(arr_str_rm[28]);
+        vrm_EXI00 = parseFloat(arr_str_rm[29]);     vrm_EXI01 = parseFloat(arr_str_rm[30]);     vrm_EXI10 = parseFloat(arr_str_rm[31]);
+        vrm_EXI11 = parseInt(arr_str_rm[32]);       vrm_EXI20 = parseInt(arr_str_rm[33]);       vrm_EXI21 = parseInt(arr_str_rm[34]);
+        vrm_EXI30 = parseInt(arr_str_rm[35]);       vrm_EXI31 = parseInt(arr_str_rm[36]);       vrm_EXI40 = parseInt(arr_str_rm[37]); vrm_EXI41 = parseInt(arr_str_rm[38]);
+        vrm_PTW0 = parseFloat(arr_str_rm[39]);      vrm_PTW1 = parseFloat(arr_str_rm[40]);      vrm_PTW2 = parseFloat(arr_str_rm[41]);      
+        vrm_selEXI = parseInt(arr_str_rm[42]);
+        vrm_selClassID = parseInt(arr_str_rm[43]);
+        vrm_selDrivingID = parseInt(arr_str_rm[44]);
+        
+        //vrm_IMU_DT = parseInt(arr_str_rm[9]); vrm_IMU_ROLL = parseFloat(arr_str_rm[10]); vrm_IMU_PITCH = parseFloat(arr_str_rm[11]); vrm_IMU_YAW = parseFloat(arr_str_rm[12]); vrm_IMU_GYRO_X = parseFloat(arr_str_rm[13]); vrm_IMU_GYRO_Y = parseFloat(arr_str_rm[14]); vrm_IMU_GYRO_Z = parseFloat(arr_str_rm[15]); vrm_IMU_ACC_X = parseFloat(arr_str_rm[16]); vrm_IMU_ACC_Y = parseFloat(arr_str_rm[17]); vrm_IMU_ACC_Z = parseFloat(arr_str_rm[18]); vrm_EBI_WHL_DEG = parseFloat(arr_str_rm[19]);        
+        //vrm_EXI_DT = parseInt(arr_str_rm[20]); vrm_EXI_BATT = parseInt(arr_str_rm[21]); vrm_EXI_WHL_DEG = parseFloat(arr_str_rm[22]);      
+        
+
+       
+        //vrm_EBI_YRT_DEG = parseFloat(arr_str_rm[43]);vrm_EXI_YRT_DEG = parseFloat(arr_str_rm[44]);vrm_CAM_YRT_DEG = parseFloat(arr_str_rm[45]);vrm_CAM_SPD_MS  = parseFloat(arr_str_rm[46]);
+
+        if(++skip_counter >= 10)
+        {
+            skip_counter = 0;
+            var timer_now = Date.now();
+            var timer_dt = timer_now - lastMiilis;  
+            lastMiilis = timer_now;
+            vbm_TIMER_HZ = (1000.0 / parseFloat(timer_dt) * 10.0).toFixed(1);
+        }
+        vbm_DR_SPD_KMH = vrm_SPD_DATA * 3.6;   vbm_DR_ANG_VEL = vrm_DIR_DATA;        
+        curLAT = vlm_SOL_LAT; curLON = vlm_SOL_LON; curANG = vlm_SOL_HEAD; curSOL = vlm_SOL_TYPE;
+        curLatLon = new google.maps.LatLng(curLAT, curLON);
+        subLAT = vlm_SUB_LAT; subLON = vlm_SUB_LON; subANG = vlm_SUB_HEAD; subSOL = vlm_SUB_TYPE;
+        subLatLon = new google.maps.LatLng(subLAT, subLON);
+        mapcenterLatLon1 = new google.maps.LatLng(curLAT+offLAT, curLON+offLON);
+        mapcenterLatLon2 = new google.maps.LatLng(subLAT+offLAT, subLON+offLON);
+
+        wp_curr_lat = curLAT;
+        wp_curr_lon = curLON;
+    }
+    function toggleCenter() { center_swap = (center_swap > 0 ? 0 : 1); updateMapCenter();}
+    function setSwap(id) { center_swap=id; updateMapCenter();}
+    function updateMapCenter() { if(map) { (center_swap > 0) ? map.setCenter(mapcenterLatLon2) : map.setCenter(mapcenterLatLon1); } }
+    function updateSubRoverMarker()
+    {
+        if(subArrowMarker)  { subArrowMarker.setPosition(subLatLon); var icon = subArrowMarker.getIcon(); icon.rotation = parseFloat(subANG); subArrowMarker.setIcon(icon);}
+        else                { subArrowMarker = new google.maps.Marker( {position: subLatLon, map: map, icon: { path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW, scale: 6, strokeColor: '#0000ff', fillColor: '#0000ff', fillOpacity: 0.4, strokeWeight: 2, rotation: Number(subANG) } });  subArrowMarker.icon.anchor = new google.maps.Point(0, 2.5); }
+        if(subCircleMarker) { subCircleMarker.setPosition(subLatLon); }
+        else                { subCircleMarker = new google.maps.Marker( {position: subLatLon, map: map, icon: { path: google.maps.SymbolPath.CIRCLE, scale: 17, strokeColor: '#0000ff', fillColor: '#0000ff', fillOpacity: 0.0, strokeWeight: 2 } }); }
+        if(subCenterMarker) { subCenterMarker.setPosition(subLatLon); }
+        else                { subCenterMarker = new google.maps.Marker( {position: subLatLon, map: map, icon: { path: google.maps.SymbolPath.CIRCLE, scale: 3, strokeColor: '#F00', fillColor: '#F00', fillOpacity: 1.0, strokeWeight: 1 } }); }
+        var uclr = sub_sol_4;
+        switch(subSOL) { case 0: uclr = sub_sol_0; break; case 1:case 2:  uclr = sub_sol_12; break; case 4: uclr = sub_sol_4; break; case 6:  uclr = sub_sol_6; break; default: uclr = sub_sol_no;  break; }
+        var icon1 =  subArrowMarker.icon;  icon1.strokeColor = icon1.fillColor = uclr; subArrowMarker.setIcon(icon1);
+        var icon2 =  subCircleMarker.icon; icon2.strokeColor = icon2.fillColor = uclr; subCircleMarker.setIcon(icon2);
+    }
+    function disableSubRoverMarker() { if(subArrowMarker) { subArrowMarker.setMap(null); subArrowMarker = null;}  if(subCircleMarker) { subCircleMarker.setMap(null); subCircleMarker = null;} if(subCenterMarker) { subCenterMarker.setMap(null); subCenterMarker = null;} }
+    var dirMarker = null; var dirANG=0.0;
+    function updateDirMarker()
+    {
+        dirANG=vrm_IMU_YAW;
+        if(dirMarker)   { dirMarker.setPosition(curLatLon); var icon = dirMarker.getIcon(); icon.rotation = parseFloat(dirANG); dirMarker.setIcon(icon);}
+        else            { dirMarker = new google.maps.Marker( {position: curLatLon, map: map, icon: { path: google.maps.SymbolPath.FORWARD_OPEN_ARROW, scale: 4, strokeColor: '#5C0797', fillColor: '#5C0797', fillOpacity: 0.7, strokeWeight: 2, rotation: Number(dirANG) } });  dirMarker.icon.anchor = new google.maps.Point(0, 9.3); } 
+    }
+    function disableDirMarker() { if(dirMarker) { dirMarker.setMap(null); dirMarker = null;} }
+    function updateMainRoverMarker()
+    {
+        if(curArrowMarker)  { curArrowMarker.setPosition(curLatLon); var icon = curArrowMarker.getIcon(); icon.rotation = parseFloat(curANG); curArrowMarker.setIcon(icon);}
+        else                { curArrowMarker = new google.maps.Marker( {position: curLatLon, map: map, icon: { path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW, scale: 6, strokeColor: '#292', fillColor: '#292', fillOpacity: 0.4, strokeWeight: 2, rotation: Number(curANG) } });  curArrowMarker.icon.anchor = new google.maps.Point(0, 2.5); }
+        if(curCircleMarker) { curCircleMarker.setPosition(curLatLon); }
+        else                { curCircleMarker = new google.maps.Marker( {position: curLatLon, map: map, icon: { path: google.maps.SymbolPath.CIRCLE, scale: 17, strokeColor: '#292', fillColor: '#292', fillOpacity: 0.0, strokeWeight: 2 } }); }
+        if(curCenterMarker) { curCenterMarker.setPosition(curLatLon); }
+        else                { curCenterMarker = new google.maps.Marker( {position: curLatLon, map: map, icon: { path: google.maps.SymbolPath.CIRCLE, scale: 3, strokeColor: '#F00', fillColor: '#F00', fillOpacity: 1.0, strokeWeight: 1 } }); }
+        var uclr = clr_sol_4;
+        switch(curSOL) { case 0: uclr = clr_sol_0; break; case 1:case 2:  uclr = clr_sol_12; break; case 4: uclr = clr_sol_4; break; case 6:  uclr = clr_sol_6; break; default: uclr = clr_sol_no;  break; }
+        var icon1 =  curArrowMarker.icon;  icon1.strokeColor = icon1.fillColor = uclr; curArrowMarker.setIcon(icon1);
+        var icon2 =  curCircleMarker.icon; icon2.strokeColor = icon2.fillColor = uclr; curCircleMarker.setIcon(icon2);
+    } 
+    function updateMainRoverMenu()
+    {
+        var col_normal = '#0e1935'; var col_high_green = '#278551'; var col_high = '#076785'; var col_low = '#303a42'; var col_alarm = '#542968'; var td_color;
+        td_color = (vtm_MAIN > 0) ? col_high : col_alarm;                                   if(tm_MAIN) { tm_MAIN.style.backgroundColor = td_color;   tm_MAIN.innerText = 'MAIN (' + String(vtm_MAIN).padStart(3, '0') + ')';}
+        td_color = (vtm_ETH > 0) ? col_high : col_low;                                      if(tm_ETH) { tm_ETH.style.backgroundColor = td_color;    tm_ETH.innerText = 'ETH (' + vtm_ETH + ')';}
+        td_color = (vtm_WIFI > 0) ? col_high : col_low;                                     if(tm_WIFI) { tm_WIFI.style.backgroundColor = td_color;   tm_WIFI.innerText = 'WIFI (' + String(vtm_WIFI).padStart(3, '0') + ')';}
+        td_color = (vtm_CAN > 0) ? col_high : col_low;                                      if(tm_CAN) { tm_CAN.style.backgroundColor = td_color;    tm_CAN.innerText = 'CAN (' + vtm_CAN + ')';}
+        td_color = (vtm_RS232 > 0) ? col_high : col_low;                                    if(tm_RS232) { tm_RS232.style.backgroundColor = td_color;  tm_RS232.innerText = 'RS232 (' + vtm_RS232 + ')';}
+        td_color = (vtm_BTSRL > 0) ? col_high : col_low;                                    if(tm_BTSRL) { tm_BTSRL.style.backgroundColor = td_color;  tm_BTSRL.innerText = 'BTSRL (' + vtm_BTSRL + ')';}
+        if(vtm_SOL > 4) td_color = col_alarm; else if(vtm_SOL == 4) td_color = col_high_green; else if(vtm_SOL > 1) td_color = col_high; else td_color = col_low; if(tm_SOL) { tm_SOL.style.backgroundColor = td_color; tm_SOL.innerText = 'SOL (' + vtm_SOL + ')';}
+        td_color = (vtm_GPS1 > 4) ? col_high_green : ((vtm_GPS1 > 1) ? col_high : col_low);     if(tm_GPS1) { tm_GPS1.style.backgroundColor = td_color;   tm_GPS1.innerText = 'GPS1 (' + vtm_GPS1 + ')';}
+        td_color = (vtm_GPS2 > 4) ? col_high_green : ((vtm_GPS2 > 1) ? col_high : col_low);     if(tm_GPS2) { tm_GPS2.style.backgroundColor = td_color;   tm_GPS2.innerText = 'GPS2 (' + vtm_GPS2 + ')';}
+        td_color = (vtm_NTRIP > 0) ? col_high : col_low;                                    if(tm_NTRIP) { tm_NTRIP.style.backgroundColor = td_color;  tm_NTRIP.innerText = 'NTRIP (' + vtm_NTRIP + ')';}
+        td_color = (vrm_SYST_IEBIMU > 0) ? col_high : col_low;                              if(tm_EBIMU) { tm_EBIMU.style.backgroundColor = td_color;  tm_EBIMU.innerText = 'EB_Imu (' + String(vtm_EBIMU).padStart(3, '0') + ')';}
+        td_color = (vrm_SYST_IEXIMU > 0) ? col_high : col_low;                              if(tm_EXIMU) { tm_EXIMU.style.backgroundColor = td_color;  tm_EXIMU.innerText = 'EX_Imu (' + String(vtm_EXIMU).padStart(3, '0') + ')'; }       
+        td_color = (vrm_SYST_IADIMU > 0) ? col_high : col_low;                              if(tm_ADIMU) { tm_ADIMU.style.backgroundColor = td_color;  tm_ADIMU.innerText = 'BN_Imu (' + String(vtm_ADIMU).padStart(3, '0') + ')'; }  
+        td_color = (vtm_OBDBT > 0) ? col_high : col_low;                                    if(tm_OBDBT) { tm_OBDBT.style.backgroundColor = td_color;   tm_OBDBT.innerText = 'OBDBT (' + vtm_OBDBT + ')';}
+        td_color = (vtm_CARCAN > 0) ? col_high : col_low;                                   if(tm_CARCAN) { tm_CARCAN.style.backgroundColor = td_color;  tm_CARCAN.innerText = 'CARCAN (' + vtm_CARCAN + ')';}
+        td_color = (vtm_CAMERA > 0) ? col_high : col_low;                                   if(tm_CAMERA) { tm_CAMERA.style.backgroundColor = td_color;  tm_CAMERA.innerText = 'CAMERA (' + vtm_CAMERA + ')';}
+        td_color = (vtm_DRREADY > 0) ? col_high_green : col_low;                            if(tm_DRREADY) { tm_DRREADY.style.backgroundColor = td_color; tm_DRREADY.innerText = 'DR_READY (' + (vtm_DRREADY) + ')';}
+        if(lm_SYS_SRC) lm_SYS_SRC.innerText = vlm_SYS_SRC;
+        if(lm_SYS_ID) lm_SYS_ID.innerText = vlm_SYS_ID;
+        if(lm_SYS_DT) lm_SYS_DT.innerText = vlm_SYS_DT+' / '+vlm_SYS_FT;
+        if(lm_SYS_RDT) lm_SYS_RDT.innerText = vlm_SYS_RDT+' / '+vlm_SYS_RFT;
+        if(lm_SYS_TM) lm_SYS_TM.innerText = vlm_SYS_TM;
+        if(lm_SYS_PWR) lm_SYS_PWR.innerText = vlm_SYS_PWR;
+        if(lm_SOL_TYPE) lm_SOL_TYPE.innerText = vlm_SOL_TYPE;
+        if(lm_SOL_LAT) lm_SOL_LAT.innerText = vlm_SOL_LAT.toFixed(8);
+        if(lm_SOL_LON) lm_SOL_LON.innerText = vlm_SOL_LON.toFixed(8);
+        if(lm_SOL_HEIGHT) lm_SOL_HEIGHT.innerText = vlm_SOL_HEIGHT.toFixed(2);
+        if(lm_SOL_HEAD) lm_SOL_HEAD.innerText = vlm_SOL_HEAD.toFixed(2);
+        if(lm_SOL_SPEED) lm_SOL_SPEED.innerText = vlm_SOL_SPEED.toFixed(2);
+        if(lm_SOL_DATE) lm_SOL_DATE.innerText = vlm_SOL_DATE;
+        if(lm_SOL_TIME) lm_SOL_TIME.innerText = vlm_SOL_TIME;
+        if(lm_U0_STATE) lm_U0_STATE.innerText = vlm_U0_STATE;
+        if(lm_U0_DT) lm_U0_DT.innerText = vlm_U0_DT;
+        if(lm_U0_NUMSV) lm_U0_NUMSV.innerText = vlm_U0_NUMSV;
+        if(lm_U0_CRRSLN) lm_U0_CRRSLN.innerText = vlm_U0_CRRSLN;
+        if(lm_U0_LAT) lm_U0_LAT.innerText = vlm_U0_LAT.toFixed(8);
+        if(lm_U0_LON) lm_U0_LON.innerText = vlm_U0_LON.toFixed(8);
+        if(lm_U0_HEIGHT) lm_U0_HEIGHT.innerText = vlm_U0_HEIGHT.toFixed(2);
+        if(lm_U0_HMSL) lm_U0_HMSL.innerText = vlm_U0_HMSL.toFixed(2);
+        if(lm_U0_HACC) lm_U0_HACC.innerText = vlm_U0_HACC.toFixed(3);
+        if(lm_U0_VACC) lm_U0_VACC.innerText = vlm_U0_VACC.toFixed(3);
+        if(lm_U0_PDOP) lm_U0_PDOP.innerText = vlm_U0_PDOP.toFixed(3);
+        if(lm_U0_FIXTYPE) lm_U0_FIXTYPE.innerText = vlm_U0_FIXTYPE + ' / ' + vlm_U0_FIXOK + ' / ' + vlm_U0_FIXDIFFSOL;
+        if(lm_U0_I2C) lm_U0_I2C.innerText = vlm_U0_I2C_ONLINE +' / ' + vlm_U0_CBF_ONLINE + ' / ' + vlm_U0_LLH_VALID;
+        if(lm_U0_RTCM) lm_U0_RTCM.innerText = vlm_U0_RTCM;
+        if(lm_U1_STATE) lm_U1_STATE.innerText = vlm_U1_STATE;
+        if(lm_U1_DT) lm_U1_DT.innerText = vlm_U1_DT;
+        if(lm_U1_NUMSV) lm_U1_NUMSV.innerText = vlm_U1_NUMSV;
+        if(lm_U1_CRRSLN) lm_U1_CRRSLN.innerText = vlm_U1_CRRSLN;
+        if(lm_U1_LAT) lm_U1_LAT.innerText = vlm_U1_LAT.toFixed(8);
+        if(lm_U1_LON) lm_U1_LON.innerText = vlm_U1_LON.toFixed(8);
+        if(lm_U1_HEIGHT) lm_U1_HEIGHT.innerText = vlm_U1_HEIGHT.toFixed(2);
+        if(lm_U1_HMSL) lm_U1_HMSL.innerText = vlm_U1_HMSL.toFixed(2);
+        if(lm_U1_HACC) lm_U1_HACC.innerText = vlm_U1_HACC.toFixed(3);
+        if(lm_U1_VACC) lm_U1_VACC.innerText = vlm_U1_VACC.toFixed(3);
+        if(lm_U1_PDOP) lm_U1_PDOP.innerText = vlm_U1_PDOP.toFixed(3);
+        if(lm_U1_FIXTYPE) lm_U1_FIXTYPE.innerText = vlm_U1_FIXTYPE + ' / ' + vlm_U1_FIXOK + ' / ' + vlm_U1_FIXDIFFSOL;
+        if(lm_U1_I2C) lm_U1_I2C.innerText = vlm_U1_I2C_ONLINE+' / ' + vlm_U1_CBF_ONLINE + ' / ' + vlm_U1_LLH_VALID;
+        if(lm_U1_RTCM) lm_U1_RTCM.innerText = vlm_U1_RTCM;
+        if(lm_NTRIP_BYTES) lm_NTRIP_BYTES.innerText = vlm_NTRIP_BYTES;
+        if(rm_SPD_SRC) rm_SPD_SRC.innerText = vrm_SPD_SRC;
+        if(rm_SPD_DATA) rm_SPD_DATA.innerText = vrm_SPD_DATA.toFixed(2);
+        if(rm_DIR_SRC) rm_DIR_SRC.innerText = vrm_DIR_SRC;
+        if(rm_DIR_DATA) rm_DIR_DATA.innerText = vrm_DIR_DATA.toFixed(2);
+        if(rm_CAR_WHBSE) rm_CAR_WHBSE.innerText = vrm_CAR_WHBSE.toFixed(2);
+        if(rm_CAR_FDIST) rm_CAR_FDIST.innerText = vrm_CAR_FDIST.toFixed(2);
+        if(rm_CAR_RDIST) rm_CAR_RDIST.innerText = vrm_CAR_RDIST.toFixed(2);
+        if(rm_CAR_TRKW) rm_CAR_TRKW.innerText = vrm_CAR_TRKW.toFixed(2);
+        if(rm_CAR_CAN) rm_CAR_CAN.innerText = vrm_CAR_CAN.toFixed(2);
+        if(rm_SPD_CALB) { rm_SPD_CALB.innerText = vrm_SPD_CALB;rm_SPD_CALB.style.backgroundColor=(vrm_SPD_CALB==2)?'#377D36':'#404244';}
+        if(rm_SPD_RATIO) rm_SPD_RATIO.innerText = vrm_SPD_RATIO.toFixed(3);
+        
+        
+        /*
+        if(rm_EXI_DT) rm_EXI_DT.innerText = vrm_EXI_DT;
+        if(rm_EXI_BATT) rm_EXI_BATT.innerText = vrm_EXI_BATT;
+        if(rm_EXI_WHL_DEG) rm_EXI_WHL_DEG.innerText = vrm_EXI_WHL_DEG.toFixed(4);       
+        if(rm_EXI_CAL) { rm_EXI_CAL.innerText = vrm_EXI_CAL;rm_EXI_CAL.style.backgroundColor=(vrm_EXI_CAL==2)?'#377D36':'#404244';} 
+        */
+        td_color = (vrm_SYST_IESP32 > 0) ? '#354d64' : '#404244';   if(rm_SYST_IESP32) { rm_SYST_IESP32.style.backgroundColor = td_color;   }
+        td_color = (vrm_SYST_IOBD > 0) ? '#354d64' : '#404244';     if(rm_SYST_IOBD) { rm_SYST_IOBD.style.backgroundColor = td_color;       }
+        td_color = (vrm_SYST_INTRIP > 0) ? '#354d64' : '#404244';   if(rm_SYST_INTRIP) { rm_SYST_INTRIP.style.backgroundColor = td_color;   }
+        td_color = (vrm_SYST_IEBIMU > 0) ? '#354d64' : '#404244';   if(rm_SYST_IEBIMU) { rm_SYST_IEBIMU.style.backgroundColor = td_color;   }
+        td_color = (vrm_SYST_IEXIMU > 0) ? '#354d64' : '#404244';   if(rm_SYST_IEXIMU) { rm_SYST_IEXIMU.style.backgroundColor = td_color;   }
+        td_color = (vrm_SYST_IADIMU > 0) ? '#354d64' : '#404244';   if(rm_SYST_IADIMU) { rm_SYST_IADIMU.style.backgroundColor = td_color;   }
+        td_color = (vrm_SYST_ICARCAN > 0) ? '#354d64' : '#404244';  if(rm_SYST_ICARCAN) { rm_SYST_ICARCAN.style.backgroundColor = td_color; }
+        //td_color = (vrm_SYST_IWHLTCK > 0) ? '#354d64' : '#404244';  if(rm_SYST_IWHLTCK) { rm_SYST_IWHLTCK.style.backgroundColor = td_color; }
+        td_color = (vrm_SYST_ICAMERA > 0) ? '#354d64' : '#404244';  if(rm_SYST_ICAMERA) { rm_SYST_ICAMERA.style.backgroundColor = td_color; }
+        td_color = (vrm_SYST_OPOWER > 0) ? '#354d64' : '#404244';   if(rm_SYST_OPOWER) { rm_SYST_OPOWER.style.backgroundColor = td_color;   }
+        td_color = (vrm_SYST_OESP32 > 0) ? '#354d64' : '#404244';   if(rm_SYST_OESP32) { rm_SYST_OESP32.style.backgroundColor = td_color;   }
+        td_color = (vrm_SYST_OETH > 0) ? '#354d64' : '#404244';     if(rm_SYST_OETH) { rm_SYST_OETH.style.backgroundColor = td_color;       }
+        td_color = (vrm_SYST_OCAN > 0) ? '#354d64' : '#404244';     if(rm_SYST_OCAN) { rm_SYST_OCAN.style.backgroundColor = td_color;       }
+        td_color = (vrm_SYST_ORS232 > 0) ? '#354d64' : '#404244';   if(rm_SYST_ORS232) { rm_SYST_ORS232.style.backgroundColor = td_color;   }
+        td_color = (vrm_SYST_ORS485 > 0) ? '#354d64' : '#404244';   if(rm_SYST_ORS485) { rm_SYST_ORS485.style.backgroundColor = td_color;   }
+        td_color = (vrm_SYST_OWIFI > 0) ? '#354d64' : '#404244';    if(rm_SYST_OWIFI) { rm_SYST_OWIFI.style.backgroundColor = td_color;     }
+        td_color = (vrm_SYST_OBT > 0) ? '#354d64' : '#404244';      if(rm_SYST_OBT) { rm_SYST_OBT.style.backgroundColor = td_color;         }
+        if(bm_TIMER_HZ) bm_TIMER_HZ.innerText = vbm_TIMER_HZ;// + ' (Hz)';
+        if(bm_DR_SPD_KMH) bm_DR_SPD_KMH.innerText = vbm_DR_SPD_KMH.toFixed(1) + ' (km/h)';
+        if(bm_DR_ANG_VEL) bm_DR_ANG_VEL.innerText = vbm_DR_ANG_VEL.toFixed(2) + ' (deg)';
+                   
+        if(rm_BN_DTMS) rm_BN_DTMS.innerText  = vrm_BN_DTMS;
+        if(rm_BN_ATT0) rm_BN_ATT0.innerText  = vrm_BN_ATT0.toFixed(4);
+        if(rm_BN_ATT1) rm_BN_ATT1.innerText  = vrm_BN_ATT1.toFixed(4);
+        if(rm_BN_ATT2) rm_BN_ATT2.innerText  = vrm_BN_ATT2.toFixed(4);
+        if(rm_BN_GYR0) rm_BN_GYR0.innerText  = vrm_BN_GYR0.toFixed(4);
+        if(rm_BN_GYR1) rm_BN_GYR1.innerText  = vrm_BN_GYR1.toFixed(4);
+        if(rm_BN_GYR2) rm_BN_GYR2.innerText  = vrm_BN_GYR2.toFixed(4);
+        if(rm_BN_ACC0) rm_BN_ACC0.innerText  = vrm_BN_ACC0.toFixed(4);
+        if(rm_BN_ACC1) rm_BN_ACC1.innerText  = vrm_BN_ACC1.toFixed(4);
+        if(rm_BN_ACC2) rm_BN_ACC2.innerText  = vrm_BN_ACC2.toFixed(4);
+        
+        if(rm_EB_DTMS) rm_EB_DTMS.innerText  = vrm_EB_DTMS;
+        if(rm_EB_ATT0) rm_EB_ATT0.innerText  = vrm_EB_ATT0.toFixed(4);
+        if(rm_EB_ATT1) rm_EB_ATT1.innerText  = vrm_EB_ATT1.toFixed(4);
+        if(rm_EB_ATT2) rm_EB_ATT2.innerText  = vrm_EB_ATT2.toFixed(4);
+        if(rm_EB_GYR0) rm_EB_GYR0.innerText  = vrm_EB_GYR0.toFixed(4);
+        if(rm_EB_GYR1) rm_EB_GYR1.innerText  = vrm_EB_GYR1.toFixed(4);
+        if(rm_EB_GYR2) rm_EB_GYR2.innerText  = vrm_EB_GYR2.toFixed(4);
+        if(rm_EB_ACC0) rm_EB_ACC0.innerText  = vrm_EB_ACC0.toFixed(4);
+        if(rm_EB_ACC1) rm_EB_ACC1.innerText  = vrm_EB_ACC1.toFixed(4);
+        if(rm_EB_ACC2) rm_EB_ACC2.innerText  = vrm_EB_ACC2.toFixed(4);
+        
+        if(rm_EXI00) rm_EXI00.innerText = vrm_EXI00; if(rm_EXI01) rm_EXI01.innerText = vrm_EXI01;
+        if(rm_EXI10) rm_EXI10.innerText = vrm_EXI10; if(rm_EXI11) rm_EXI11.innerText = vrm_EXI11;
+        if(rm_EXI20) rm_EXI20.innerText = vrm_EXI20; if(rm_EXI21) rm_EXI21.innerText = vrm_EXI21;
+        if(rm_EXI30) rm_EXI30.innerText = vrm_EXI30; if(rm_EXI31) rm_EXI31.innerText = vrm_EXI31;
+        if(rm_EXI40) rm_EXI40.innerText = vrm_EXI40; if(rm_EXI41) rm_EXI41.innerText = vrm_EXI41;
+        
+        if(rm_PTW0) rm_PTW0.innerText = vrm_PTW0;
+        if(rm_PTW1) rm_PTW1.innerText = vrm_PTW1;
+        if(rm_PTW2) rm_PTW2.innerText = vrm_PTW2;
+
+        if(td_top_alarm) { td_top_alarm.style.height = (vrm_SYST_OPOWER > 0)  ? '0px' : '15px'; td_top_alarm.innerText = (vrm_SYST_OPOWER > 0)  ? '' : 'MAIN-POWER-OFF'; }
+        if(td_top_notice) { td_top_notice.style.height = (vrm_SYST_EBICAL == 0)  ? '0px' : '15px'; td_top_notice.innerText = (vrm_SYST_EBICAL == 0)  ? '' : 'EB-IMU-MAG-CALIBRATING...'; }
+
+        if(bm_CAR_SPD_KMH)      bm_CAR_SPD_KMH.innerText    = vbm_CAR_SPD_KMH.toFixed(1);
+        if(bm_CAR_TRV_DIST1)    bm_CAR_TRV_DIST1.innerText  = vbm_CAR_TRV_DIST1.toFixed(1);
+        if(bm_CAR_TRV_DIST2)    bm_CAR_TRV_DIST2.innerText  = vbm_CAR_TRV_DIST2.toFixed(1);
+        if(bm_CAR_STR_DEG)      bm_CAR_STR_DEG.innerText    = vbm_CAR_STR_DEG.toFixed(1);
+        if(bm_CAR_RATIO1)       bm_CAR_RATIO1.innerText     = vbm_CAR_RATIO1.toFixed(2);
+        if(bm_CAR_RATIO1)       bm_CAR_RATIO1.innerText     = vbm_CAR_RATIO1.toFixed(2);
+        if(bm_CAR_RATIO1)       bm_CAR_RATIO1.innerText     = vbm_CAR_RATIO1.toFixed(2);
+
+        if(bm_CAR_SR_DT1)       bm_CAR_SR_DT1.innerText     = vbm_CAR_SR_DT1;
+        if(bm_CAR_SR_DT2)       bm_CAR_SR_DT2.innerText     = vbm_CAR_SR_DT2;
+        if(bm_CAR_SR_DT3)       bm_CAR_SR_DT3.innerText     = vbm_CAR_SR_DT3;
+        if(bm_CAR_SR_DT4)       bm_CAR_SR_DT4.innerText     = vbm_CAR_SR_DT4;
+        if(bm_CAR_SR_DT5)       bm_CAR_SR_DT5.innerText     = vbm_CAR_SR_DT5;
+
+        //vbm_CAR_SR_BT1 = 20;
+
+        if(bm_CAR_SR_BT1)       { bm_CAR_SR_BT1.innerText = bm_CAR_SR_BT1.style.width = vbm_CAR_SR_BT1 + '%';}        
+        if(bm_CAR_SR_BT2)       { bm_CAR_SR_BT2.innerText = bm_CAR_SR_BT2.style.width = vbm_CAR_SR_BT2 + '%';}
+        if(bm_CAR_SR_BT3)       { bm_CAR_SR_BT3.innerText = bm_CAR_SR_BT3.style.width = vbm_CAR_SR_BT3 + '%';}
+        if(bm_CAR_SR_BT4)       { bm_CAR_SR_BT4.innerText = bm_CAR_SR_BT4.style.width = vbm_CAR_SR_BT4 + '%';}
+        if(bm_CAR_SR_BT5)       { bm_CAR_SR_BT5.innerText = bm_CAR_SR_BT5.style.width = vbm_CAR_SR_BT5 + '%';}
+
+        if(rm_SPDVIEW_SPD)      { rm_SPDVIEW_SPD.innerText = vbm_CAR_SPD_KMH.toFixed(1); }
+        if(rm_SPDVIEW_KM1)      { rm_SPDVIEW_KM1.innerText = vbm_CAR_TRV_DIST2.toFixed(1); }
+        if(rm_SPDVIEW_KM2)      { rm_SPDVIEW_KM2.innerText = vbm_CAR_TRV_DIST3.toFixed(1); }
+
+    }
+    function initMap() 
+    { 
+        var mapProp = {center:new google.maps.LatLng(curLAT, curLON), zoom : 19, tilt: 0}; 
+        map = new google.maps.Map(document.getElementById('googleMap'), mapProp);
+        updateMapViewer();        
+        wp_init(); 
+    }    
+    function updateMapViewer()
+    {
+        updateRoverData();
+        updateMapCenter();
+        updateMainRoverMarker();
+        updateMainRoverMenu();
+        //updateSubRoverMarker();
+        if(screen_mode == 2) { updateDirMarker(); } else { disableDirMarker(); }
+    }
+    function logo_click_handler()
+    {
+        if(++screen_mode > 2) screen_mode = 0;
+        if(screen_mode > 0)
+        {
+            document.getElementById('mtb_td1').width = '10%';  document.getElementById('mtb_td1_tbl').style.width='100%'; document.getElementById('mtb_td1_tbl').style.visibility = 'visible';
+            document.getElementById('mtb_td2').width = '80%';  
+            document.getElementById('mtb_td3').width = '10%';  document.getElementById('mtb_td3_tbl').style.width='100%'; document.getElementById('mtb_td3_tbl').style.visibility = 'visible';                                 
+        }
+        else
+        {
+            document.getElementById('mtb_td1').width = '0%';  document.getElementById('mtb_td1_tbl').style.width='0%'; document.getElementById('mtb_td1_tbl').style.visibility = 'hidden';
+            document.getElementById('mtb_td2').width = '100%';
+            document.getElementById('mtb_td3').width = '0%';  document.getElementById('mtb_td3_tbl').style.width='0%'; document.getElementById('mtb_td3_tbl').style.visibility = 'hidden';            
+        }
+    }
+    function toggle_div_visible(id_name)
+    {
+        var obj = document.getElementById(id_name);
+        if(obj.style.visibility == 'visible') obj.style.visibility = 'hidden';
+        if(obj.style.visibility == 'hidden') obj.style.visibility = 'visible';
+    }
+    //--------------------------------------------------------------------------------------------
+    var ebCtx1, ebChart1, ebCtx2, ebChart2;
+    var adCtx1, adChart1, adCtx2, adChart2;
+    var dtCtx1, dtChart1, dtCtx2, dtChart2;
+    var exCtx1, exChart1, exCtx2, exChart2;
+    function button_hover(obj)      { obj.style.backgroundColor='#28456b'; }
+    function button_hout(obj)       { obj.style.backgroundColor='#21334b'; }    
+    function button_click(obj)      { obj.style.backgroundColor='#326ebd'; }
+    function fire_command(cmd_id)   { window.chrome.webview.postMessage('[cmd_idx]' + String(cmd_id));}        
+    var ebimu_overlay_on = false;
+    var adimu_overlay_on = false;
+    var eximu_overlay_on = false;
+    var debug_overlay_on = false;
+    var dt_overlay_on = false;
+    function ebimu_overlay(){
+        if(ebimu_overlay_on) { ebimu_overlay_on = adimu_overlay_on = debug_overlay_on = dt_overlay_on = eximu_overlay_on = false;}
+        else { ebimu_overlay_on = true; adimu_overlay_on = debug_overlay_on = dt_overlay_on = eximu_overlay_on = false;}            
+        //overlay_on('ebimu_overlay', ebimu_overlay_on, 200, 0.1, 0.79); overlay_on('adimu_overlay', adimu_overlay_on, 200, 0.1, 0.79);overlay_on('debug_overlay', debug_overlay_on, 150, 0, 1);overlay_on('dt_overlay', dt_overlay_on, 200, 0.1, 0.79); overlay_on('eximu_overlay', eximu_overlay_on, 200, 0.1), 0.79;
+        reseize_overlays();
+    }
+    function adimu_overlay(){
+        if(adimu_overlay_on) { ebimu_overlay_on = adimu_overlay_on = debug_overlay_on = dt_overlay_on = eximu_overlay_on = false;}
+        else { adimu_overlay_on = true; ebimu_overlay_on = debug_overlay_on = dt_overlay_on = eximu_overlay_on = false;}            
+        //overlay_on('ebimu_overlay', ebimu_overlay_on, 200, 0.1, 0.79); overlay_on('adimu_overlay', adimu_overlay_on, 200, 0.1, 0.79);overlay_on('debug_overlay', debug_overlay_on, 150, 0, 1);overlay_on('dt_overlay', dt_overlay_on, 200, 0.1, 0.79); overlay_on('eximu_overlay', eximu_overlay_on, 200, 0.1, 0.79);
+        reseize_overlays();
+    }
+    function eximu_overlay(){
+        if(eximu_overlay_on) { ebimu_overlay_on = adimu_overlay_on = debug_overlay_on = dt_overlay_on = eximu_overlay_on = false;}
+        else { eximu_overlay_on = true; ebimu_overlay_on = adimu_overlay_on = debug_overlay_on = dt_overlay_on = false;}            
+        //overlay_on('ebimu_overlay', ebimu_overlay_on, 200, 0.1, 0.79); overlay_on('adimu_overlay', adimu_overlay_on, 200, 0.1, 0.79);overlay_on('debug_overlay', debug_overlay_on, 150, 0, 1);overlay_on('dt_overlay', dt_overlay_on, 200, 0.1, 0.79); overlay_on('eximu_overlay', eximu_overlay_on, 200, 0.1, 0.79);
+        reseize_overlays();
+    }
+    function debug_overlay(){
+        if(debug_overlay_on) { ebimu_overlay_on = adimu_overlay_on = debug_overlay_on = dt_overlay_on = eximu_overlay_on = false;}
+        else { debug_overlay_on = true; ebimu_overlay_on = adimu_overlay_on = dt_overlay_on = eximu_overlay_on = false;}            
+        //overlay_on('ebimu_overlay', ebimu_overlay_on, 200, 0.1, 0.79); overlay_on('adimu_overlay', adimu_overlay_on, 200, 0.1, 0.79);overlay_on('debug_overlay', debug_overlay_on, 150, 0, 1);overlay_on('dt_overlay', dt_overlay_on, 200, 0.1, 0.79); overlay_on('eximu_overlay', eximu_overlay_on, 200, 0.1, 0.79);
+        reseize_overlays();
+    }
+    function dt_overlay(){
+        if(dt_overlay_on) { ebimu_overlay_on = adimu_overlay_on = debug_overlay_on = dt_overlay_on = eximu_overlay_on = false;}
+        else { dt_overlay_on = true; ebimu_overlay_on = adimu_overlay_on = debug_overlay_on = eximu_overlay_on =  false;}            
+        //overlay_on('ebimu_overlay', ebimu_overlay_on, 200, 0.1, 0.79); overlay_on('adimu_overlay', adimu_overlay_on, 200, 0.1, 0.79);overlay_on('debug_overlay', debug_overlay_on, 150, 0, 1);overlay_on('dt_overlay', dt_overlay_on, 200, 0.1, 0.79); overlay_on('eximu_overlay', eximu_overlay_on, 200, 0.1, 0.79);
+        reseize_overlays();
+    }
+    function overlay_on(ovl_id, on, oh, ox, dx, opct){
+        if(document.getElementById(ovl_id))
+        {
+            if(on == true){
+            document.getElementById(ovl_id).style.position='fixed';
+            //document.getElementById(ovl_id).style.backgroundColor='rgba(4, 25, 53, 0.7)';
+            document.getElementById(ovl_id).style.backgroundColor='transparent';
+            document.getElementById(ovl_id).style.zIndex=2;
+            document.getElementById(ovl_id).style.top = (window.innerHeight * 1.0 - oh - 4) + 'px';
+            document.getElementById(ovl_id).style.height = oh + 'px';
+            document.getElementById(ovl_id).style.left = (window.innerWidth * ox) + 'px';            
+            document.getElementById(ovl_id).style.width = (window.innerWidth * dx) + 'px';
+            document.getElementById(ovl_id).style.display='block';
+            document.getElementById(ovl_id).style.opacity=opct;
+            }else{ document.getElementById(ovl_id).style.display='none';}        
+        }            
+    }
+    function overlay_on2(ovl_id, on, px, py, dx, dy, opct){
+        if(document.getElementById(ovl_id))
+        {
+            if(on == true){
+                document.getElementById(ovl_id).style.position='fixed';
+                document.getElementById(ovl_id).style.backgroundColor='rgba(4, 25, 53, 0.7)';
+                document.getElementById(ovl_id).style.zIndex=2;
+                document.getElementById(ovl_id).style.top = py + 'px';
+                document.getElementById(ovl_id).style.height = dy + 'px';
+                document.getElementById(ovl_id).style.left = px + 'px';
+                document.getElementById(ovl_id).style.width = dx + 'px';
+                document.getElementById(ovl_id).style.display='block';
+                document.getElementById(ovl_id).style.opacity=opct;
+            }else{ document.getElementById(ovl_id).style.display='none';}            
+        }
+    }
+
+    /*
+    function show_img_overlay(on)
+    {
+        if(on == true){
+            document.getElementById('img_overlay').style.position='fixed';
+            document.getElementById('img_overlay').style.backgroundColor='#102650';
+            document.getElementById('img_overlay').style.display='';            
+            document.getElementById('img_overlay').style.zIndex=10;
+            document.getElementById('img_overlay').style.opacity = '80%';
+            resize_img_overlay();            
+        }else{ document.getElementById('img_overlay').style.display='none';}   
+    }
+    function resize_img_overlay()
+    {
+        var img_ov = document.getElementById('img_overlay');
+        if(img_ov) {
+            img_ov.style.top        = 26 + 'px';
+            img_ov.style.height     = 200 + 'px';
+            img_ov.style.left       = 2 + 'px';
+            img_ov.style.width      = window.innerWidth - 8 + 'px';
+        }
+    }
+    */
+    function reseize_overlays()
+    {
+        overlay_on('ebimu_overlay', ebimu_overlay_on,   200, 0.1,   0.79,   1.0); 
+        overlay_on('adimu_overlay', adimu_overlay_on,   200, 0.1,   0.79,   1.0);
+        overlay_on('debug_overlay', debug_overlay_on,   150, 0,     1,      1.0);
+        overlay_on('dt_overlay',    dt_overlay_on,      200, 0.1,   0.79,   1.0); 
+        overlay_on('eximu_overlay', eximu_overlay_on,   200, 0.1,   0.79,   1.0);
+    }
+    function body_onresize_handler()
+    {
+        //resize_img_overlay();
+        reseize_overlays();
+    }
+
+    const IMU_ARR_SIZE = 50;
+    const IMU_LINE_WIDTH = 2;
+    const IMU_ACC_STROKE = 40;
+    const IMU_GYRO_STROKE = 40;
+    //const IMU_ACC_STROKE = 10;
+    //const IMU_GYRO_STROKE = 30;
+    var eb_accX = new Array(IMU_ARR_SIZE); var eb_accY = new Array(IMU_ARR_SIZE); var eb_accZ = new Array(IMU_ARR_SIZE);
+    var eb_gyrX = new Array(IMU_ARR_SIZE); var eb_gyrY = new Array(IMU_ARR_SIZE); var eb_gyrZ = new Array(IMU_ARR_SIZE);
+    var ad_accX = new Array(IMU_ARR_SIZE); var ad_accY = new Array(IMU_ARR_SIZE); var ad_accZ = new Array(IMU_ARR_SIZE);
+    var ad_gyrX = new Array(IMU_ARR_SIZE); var ad_gyrY = new Array(IMU_ARR_SIZE); var ad_gyrZ = new Array(IMU_ARR_SIZE);
+    var ex_imu0 = new Array(IMU_ARR_SIZE); var ex_imu1 = new Array(IMU_ARR_SIZE); var ex_imu2 = new Array(IMU_ARR_SIZE);    
+    var ex_ptw0 = new Array(IMU_ARR_SIZE); var ex_ptw1 = new Array(IMU_ARR_SIZE); var ex_ptw2 = new Array(IMU_ARR_SIZE);    
+    var ms_dt = new Array(IMU_ARR_SIZE); var ms_ft = new Array(IMU_ARR_SIZE); var ms_rdt = new Array(IMU_ARR_SIZE); var ms_rft = new Array(IMU_ARR_SIZE);
+    for(let i=0; i<IMU_ARR_SIZE; i++) { eb_accX[i] = eb_accY[i] = eb_accZ[i] = eb_gyrX[i] = eb_gyrY[i] = eb_gyrZ[i] = 0; }
+    for(let i=0; i<IMU_ARR_SIZE; i++) { ad_accX[i] = ad_accY[i] = ad_accZ[i] = ad_gyrX[i] = ad_gyrY[i] = ad_gyrZ[i] = 0; }
+    for(let i=0; i<IMU_ARR_SIZE; i++) { ex_imu0[i] = ex_imu1[i] = ex_imu2[i] = ex_ptw0[i] = ex_ptw1[i] = ex_ptw2[i] = 0; }
+    for(let i=0; i<IMU_ARR_SIZE; i++) { ms_dt[i] = ms_ft[i] = ms_rdt[i] = ms_rft[i] = 0; }
+    
+
+    function update_eb_chart()
+    {
+        if(!ebimu_overlay_on) return;
+        for(let i=IMU_ARR_SIZE-1; i>0; i--) { eb_accX[i] = eb_accX[i-1]; eb_accY[i] = eb_accY[i-1]; eb_accZ[i] = eb_accZ[i-1]; eb_gyrX[i] = eb_gyrX[i-1]; eb_gyrY[i] = eb_gyrY[i-1]; eb_gyrZ[i] = eb_gyrZ[i-1]; }
+        eb_accX[0] = vrm_EB_ACC0;    eb_accY[0] = vrm_EB_ACC1;    eb_accZ[0] = vrm_EB_ACC2;
+        eb_gyrX[0] = vrm_EB_GYR0;    eb_gyrY[0] = vrm_EB_GYR1;    eb_gyrZ[0] = vrm_EB_GYR2;
+        ebChart1.data.datasets[0].data = eb_accX; ebChart1.data.datasets[1].data = eb_accY; ebChart1.data.datasets[2].data = eb_accZ;
+        ebChart2.data.datasets[0].data = eb_gyrX; ebChart2.data.datasets[1].data = eb_gyrY; ebChart2.data.datasets[2].data = eb_gyrZ;
+        ebChart1.update(); ebChart2.update();
+    }
+    function update_ad_chart()
+    {
+        if(!adimu_overlay_on) return;
+        for(let i=IMU_ARR_SIZE-1; i>0; i--) { ad_accX[i] = ad_accX[i-1]; ad_accY[i] = ad_accY[i-1]; ad_accZ[i] = ad_accZ[i-1]; ad_gyrX[i] = ad_gyrX[i-1]; ad_gyrY[i] = ad_gyrY[i-1]; ad_gyrZ[i] = ad_gyrZ[i-1]; }
+        ad_accX[0] = vrm_BN_ACC0;       ad_accY[0] = vrm_BN_ACC1;       ad_accZ[0] = vrm_BN_ACC2;
+        ad_gyrX[0] = vrm_BN_GYR0;       ad_gyrY[0] = vrm_BN_GYR1;       ad_gyrZ[0] = vrm_BN_GYR2;
+        adChart1.data.datasets[0].data = ad_accX; adChart1.data.datasets[1].data = ad_accY; adChart1.data.datasets[2].data = ad_accZ;
+        adChart2.data.datasets[0].data = ad_gyrX; adChart2.data.datasets[1].data = ad_gyrY; adChart2.data.datasets[2].data = ad_gyrZ;
+        adChart1.update(); adChart2.update();
+    }
+    function update_ex_chart()
+    {
+        if(!eximu_overlay_on) return;
+        for(let i=IMU_ARR_SIZE-1; i>0; i--) { ex_imu0[i] = ex_imu0[i-1]; ex_imu1[i] = ex_imu1[i-1]; ex_imu2[i] = ex_imu2[i-1]; ex_ptw0[i] = ex_ptw0[i-1]; ex_ptw1[i] = ex_ptw1[i-1]; ex_ptw2[i] = ex_ptw2[i-1];}
+        ex_imu0[0] = vrm_EXI00;     ex_imu1[0] = vrm_EXI01;     ex_imu2[0] = 0;
+        switch(vrm_selEXI)
+        {
+            case 1: ex_ptw0[0] = vrm_PTW0;      ex_ptw1[0] = 0;             ex_ptw2[0] = 0; break;
+            case 2: ex_ptw0[0] = vrm_PTW1;      ex_ptw1[0] = 0;             ex_ptw2[0] = 0; break;
+            case 3: ex_ptw0[0] = vrm_PTW2;      ex_ptw1[0] = 0;             ex_ptw2[0] = 0; break;
+            case 4: ex_ptw0[0] = vrm_EXI00;     ex_ptw1[0] = vrm_EXI01;     ex_ptw2[0] = 0; break;
+            case 5: ex_ptw0[0] = vrm_EXI10;     ex_ptw1[0] = vrm_EXI11;     ex_ptw2[0] = 0; break;
+            case 6: ex_ptw0[0] = vrm_EXI20;     ex_ptw1[0] = vrm_EXI21;     ex_ptw2[0] = 0; break;
+            case 7: ex_ptw0[0] = vrm_EXI30;     ex_ptw1[0] = vrm_EXI31;     ex_ptw2[0] = 0; break;
+            case 8: ex_ptw0[0] = vrm_EXI40;     ex_ptw1[0] = vrm_EXI41;     ex_ptw2[0] = 0; break;
+        }
+        exChart1.data.datasets[0].data = ex_imu0; exChart1.data.datasets[1].data = ex_imu1; exChart1.data.datasets[2].data = ex_imu2;
+        exChart2.data.datasets[0].data = ex_ptw0; exChart2.data.datasets[1].data = ex_ptw1; exChart2.data.datasets[2].data = ex_ptw2;
+        exChart1.update(); exChart2.update();
+    }
+    function update_dt_chart()
+    {
+        if(!dt_overlay_on) return;
+        for(let i=IMU_ARR_SIZE-1; i>0; i--) { ms_dt[i] = ms_dt[i-1]; ms_ft[i] = ms_ft[i-1]; ms_rdt[i] = ms_rdt[i-1]; ms_rft[i] = ms_rft[i-1];}
+        ms_dt[0] = vlm_SYS_DT;      ms_ft[0] = vlm_SYS_FT;        
+        ms_rdt[0] = vlm_SYS_RDT;    ms_rft[0] = vlm_SYS_RFT;        
+        dtChart1.data.datasets[0].data = ms_dt; dtChart1.data.datasets[1].data = ms_ft;
+        dtChart2.data.datasets[0].data = ms_rdt;dtChart2.data.datasets[1].data = ms_rft;
+        dtChart1.update(); dtChart2.update();
+    }
+
+    
+    function test()
+    {
+        //-- (1) Shift
+        for(let i=IMU_ARR_SIZE-1; i>0; i--) eb_accX[i] = eb_accX[i-1];
+        for(let i=IMU_ARR_SIZE-1; i>0; i--) eb_accY[i] = eb_accY[i-1];
+        for(let i=IMU_ARR_SIZE-1; i>0; i--) eb_accZ[i] = eb_accZ[i-1];
+        for(let i=IMU_ARR_SIZE-1; i>0; i--) eb_gyrX[i] = eb_gyrX[i-1];
+        for(let i=IMU_ARR_SIZE-1; i>0; i--) eb_gyrY[i] = eb_gyrY[i-1];
+        for(let i=IMU_ARR_SIZE-1; i>0; i--) eb_gyrZ[i] = eb_gyrZ[i-1];
+        
+        //-- (2) Random value
+        var accX = Math.floor(Math.random() * 20) - 10;
+        var accY = Math.floor(Math.random() * 20) - 10;
+        var accZ = Math.floor(Math.random() * 20) - 10;
+
+        var gyrX = Math.floor(Math.random() * 60) - 30;
+        var gyrY = Math.floor(Math.random() * 60) - 30;
+        var gyrZ = Math.floor(Math.random() * 60) - 30;
+
+        //-- (3) Push Front
+        eb_accX[0] = accX;
+        eb_accY[0] = accY;
+        eb_accZ[0] = accZ;
+
+        eb_gyrX[0] = gyrX;
+        eb_gyrY[0] = gyrY;
+        eb_gyrZ[0] = gyrZ;
+
+        ebChart1.data.datasets[0].data = eb_accX;
+        ebChart1.data.datasets[1].data = eb_accY;
+        ebChart1.data.datasets[2].data = eb_accZ;
+
+        ebChart2.data.datasets[0].data = eb_gyrX;
+        ebChart2.data.datasets[1].data = eb_gyrY;
+        ebChart2.data.datasets[2].data = eb_gyrZ;
+
+        ebChart1.update();
+        ebChart2.update();
+    }
+    function init_eb_chart()
+    {
+        ebCtx1 = document.getElementById('ebimu_chart1').getContext('2d');
+        ebChart1 = new Chart(ebCtx1, {
+            type: 'line',
+            data: { labels: new Array(IMU_ARR_SIZE), 
+                    datasets: [ 
+                        { label: 'Acc_X', data: new Array(IMU_ARR_SIZE), backgroundColor: 'rgba(102, 205, 162, 0.2)',   borderColor: 'rgba(102, 205, 162, 1)',  borderWidth: IMU_LINE_WIDTH, tension: 0.1 }, 
+                        { label: 'Acc_Y', data: new Array(IMU_ARR_SIZE), backgroundColor: 'rgba(54, 162, 235, 0.2)',    borderColor: 'rgba(54, 162, 235, 1)',   borderWidth: IMU_LINE_WIDTH, tension: 0.1 },
+                        { label: 'Acc_Z', data: new Array(IMU_ARR_SIZE), backgroundColor: 'rgba(153, 102, 255, 0.2)',   borderColor: 'rgba(153, 102, 255, 1)',  borderWidth: IMU_LINE_WIDTH, tension: 0.1 }
+                    ]},
+            options: {
+                responsive: true, maintainAspectRatio: false, normalized: true, spanGaps: true,
+                elements:   { point: { radius: 0 }}, layout: { padding: 5 }, animation: { duration: 0, easing: 'ease-in-out'},
+                scales:     { y: { beginAtZero: true, suggestedMin: -10, suggestedMax: 10 }},
+                plugins:    { legend: { display: true}, title: { display: false, text: 'EBIMU Accel' }, tooltip: { enabled: false }}}
+        }); 
+        for(let i=0; i<IMU_ARR_SIZE; i++) ebChart1.data.labels[i] = i;
+
+        ebCtx2 = document.getElementById('ebimu_chart2').getContext('2d');
+        ebChart2 = new Chart(ebCtx2, {
+            type: 'line',
+            data: { labels: new Array(IMU_ARR_SIZE), 
+                    datasets: [ 
+                        { label: 'Gyro_X', data: new Array(IMU_ARR_SIZE), backgroundColor: 'rgba(102, 205, 162, 0.2)',   borderColor: 'rgba(102, 205, 162, 1)',  borderWidth: IMU_LINE_WIDTH, tension: 0.1 }, 
+                        { label: 'Gyro_Y', data: new Array(IMU_ARR_SIZE), backgroundColor: 'rgba(54, 162, 235, 0.2)',    borderColor: 'rgba(54, 162, 235, 1)',   borderWidth: IMU_LINE_WIDTH, tension: 0.1 },
+                        { label: 'Gyro_Z', data: new Array(IMU_ARR_SIZE), backgroundColor: 'rgba(153, 102, 255, 0.2)',   borderColor: 'rgba(153, 102, 255, 1)',  borderWidth: IMU_LINE_WIDTH, tension: 0.1 }
+                    ]},
+            options: {
+                responsive: true, maintainAspectRatio: false, normalized: true, spanGaps: true,
+                elements:   { point: { radius: 0 }}, layout: { padding: 5 }, animation: { duration: 0, easing: 'ease-in-out'},
+                scales:     { y: { beginAtZero: true, suggestedMin: -30, suggestedMax: 30 }},
+                plugins:    { legend: { display: true}, title: { display: false, text: 'EBIMU Gyro' }, tooltip: { enabled: false }}}
+        }); 
+        for(let i=0; i<IMU_ARR_SIZE; i++) ebChart2.data.labels[i] = i;
+    }
+    function init_ad_chart()
+    {
+        adCtx1 = document.getElementById('adimu_chart1').getContext('2d');
+        adChart1 = new Chart(adCtx1, {
+            type: 'line',
+            data: { labels: new Array(IMU_ARR_SIZE), 
+                    datasets: [ 
+                        { label: 'Acc_X', data: new Array(IMU_ARR_SIZE), backgroundColor: 'rgba(102, 205, 162, 0.2)',   borderColor: 'rgba(102, 205, 162, 1)',  borderWidth: IMU_LINE_WIDTH, tension: 0.1 }, 
+                        { label: 'Acc_Y', data: new Array(IMU_ARR_SIZE), backgroundColor: 'rgba(54, 162, 235, 0.2)',    borderColor: 'rgba(54, 162, 235, 1)',   borderWidth: IMU_LINE_WIDTH, tension: 0.1 },
+                        { label: 'Acc_Z', data: new Array(IMU_ARR_SIZE), backgroundColor: 'rgba(153, 102, 255, 0.2)',   borderColor: 'rgba(153, 102, 255, 1)',  borderWidth: IMU_LINE_WIDTH, tension: 0.1 }
+                    ]},
+            options: {
+                responsive: true, maintainAspectRatio: false, normalized: true, spanGaps: true,
+                elements:   { point: { radius: 0 }}, layout: { padding: 5 }, animation: { duration: 0, easing: 'ease-in-out'},
+                scales:     { y: { beginAtZero: true, suggestedMin: -10, suggestedMax: 10 }},
+                plugins:    { legend: { display: true}, title: { display: false, text: 'BNIMU Accel' }, tooltip: { enabled: false }}}
+        }); 
+        for(let i=0; i<IMU_ARR_SIZE; i++) adChart1.data.labels[i] = i;
+
+        adCtx2 = document.getElementById('adimu_chart2').getContext('2d');
+        adChart2 = new Chart(adCtx2, {
+            type: 'line',
+            data: { labels: new Array(IMU_ARR_SIZE), 
+                    datasets: [ 
+                        { label: 'Gyro_X', data: new Array(IMU_ARR_SIZE), backgroundColor: 'rgba(102, 205, 162, 0.2)',   borderColor: 'rgba(102, 205, 162, 1)',  borderWidth: IMU_LINE_WIDTH, tension: 0.1 }, 
+                        { label: 'Gyro_Y', data: new Array(IMU_ARR_SIZE), backgroundColor: 'rgba(54, 162, 235, 0.2)',    borderColor: 'rgba(54, 162, 235, 1)',   borderWidth: IMU_LINE_WIDTH, tension: 0.1 },
+                        { label: 'Gyro_Z', data: new Array(IMU_ARR_SIZE), backgroundColor: 'rgba(153, 102, 255, 0.2)',   borderColor: 'rgba(153, 102, 255, 1)',  borderWidth: IMU_LINE_WIDTH, tension: 0.1 }
+                    ]},
+            options: {
+                responsive: true, maintainAspectRatio: false, normalized: true, spanGaps: true,
+                elements:   { point: { radius: 0 }}, layout: { padding: 5 }, animation: { duration: 0, easing: 'ease-in-out'},
+                scales:     { y: { beginAtZero: true, suggestedMin: -30, suggestedMax: 30 }},
+                plugins:    { legend: { display: true}, title: { display: false, text: 'BNIMU Gyro' }, tooltip: { enabled: false }}}
+        }); 
+        for(let i=0; i<IMU_ARR_SIZE; i++) adChart2.data.labels[i] = i;
+    }
+    function init_ex_chart()
+    {
+        exCtx1 = document.getElementById('eximu_chart1').getContext('2d');
+        exChart1 = new Chart(exCtx1, {
+            type: 'line',
+            data: { labels: new Array(IMU_ARR_SIZE), 
+                    datasets: [ 
+                        { label: 'EXI0[0]', data: new Array(IMU_ARR_SIZE), backgroundColor: 'rgba(102, 205, 162, 0.2)',   borderColor: 'rgba(102, 205, 162, 1)',  borderWidth: IMU_LINE_WIDTH, tension: 0.1 }, 
+                        { label: 'EXI0[1]', data: new Array(IMU_ARR_SIZE), backgroundColor: 'rgba(54, 162, 235, 0.2)',    borderColor: 'rgba(54, 162, 235, 1)',   borderWidth: IMU_LINE_WIDTH, tension: 0.1 },
+                        { label: 'EXI0[2]', data: new Array(IMU_ARR_SIZE), backgroundColor: 'rgba(153, 102, 255, 0.2)',   borderColor: 'rgba(153, 102, 255, 1)',  borderWidth: IMU_LINE_WIDTH, tension: 0.1 }
+                    ]},
+            options: {
+                responsive: true, maintainAspectRatio: false, normalized: true, spanGaps: true,
+                elements:   { point: { radius: 0 }}, layout: { padding: 5 }, animation: { duration: 0, easing: 'ease-in-out'},
+                scales:     { y: { beginAtZero: true, suggestedMin: -10, suggestedMax: 10 }},
+                plugins:    { legend: { display: true}, title: { display: false, text: 'EXIMU REF' }, tooltip: { enabled: false }}}
+        }); 
+        for(let i=0; i<IMU_ARR_SIZE; i++) exChart1.data.labels[i] = i;
+
+        exCtx2 = document.getElementById('eximu_chart2').getContext('2d');
+        exChart2 = new Chart(exCtx2, {
+            type: 'line',
+            data: { labels: new Array(IMU_ARR_SIZE), 
+                    datasets: [ 
+                        { label: 'SENSOR[0]', data: new Array(IMU_ARR_SIZE), backgroundColor: 'rgba(102, 205, 162, 0.2)',   borderColor: 'rgba(102, 205, 162, 1)',  borderWidth: IMU_LINE_WIDTH, tension: 0.1 }, 
+                        { label: 'SENSOR[1]', data: new Array(IMU_ARR_SIZE), backgroundColor: 'rgba(54, 162, 235, 0.2)',    borderColor: 'rgba(54, 162, 235, 1)',   borderWidth: IMU_LINE_WIDTH, tension: 0.1 },
+                        { label: 'SENSOR[2]', data: new Array(IMU_ARR_SIZE), backgroundColor: 'rgba(153, 102, 255, 0.2)',   borderColor: 'rgba(153, 102, 255, 1)',  borderWidth: IMU_LINE_WIDTH, tension: 0.1 }
+                    ]},
+            options: {
+                responsive: true, maintainAspectRatio: false, normalized: true, spanGaps: true,
+                elements:   { point: { radius: 0 }}, layout: { padding: 5 }, animation: { duration: 0, easing: 'ease-in-out'},
+                scales:     { y: { beginAtZero: true, suggestedMin: -10, suggestedMax: 10 }},
+                plugins:    { legend: { display: true}, title: { display: false, text: 'SLECTED SENSOR' }, tooltip: { enabled: false }}}
+        }); 
+        for(let i=0; i<IMU_ARR_SIZE; i++) exChart2.data.labels[i] = i;
+    }
+    function init_dt_chart()
+    {
+        dtCtx1 = document.getElementById('dt_chart1').getContext('2d');
+        dtChart1 = new Chart(dtCtx1, {
+            type: 'line',
+            data: { labels: new Array(IMU_ARR_SIZE), 
+                    datasets: [ 
+                        { label: 'DT', data: new Array(IMU_ARR_SIZE), backgroundColor: 'rgba(102, 205, 162, 0.2)',   borderColor: 'rgba(102, 205, 162, 1)',  borderWidth: IMU_LINE_WIDTH, tension: 0.1 },                         
+                        { label: 'FT', data: new Array(IMU_ARR_SIZE), backgroundColor: 'rgba(54, 162, 235, 0.2)',    borderColor: 'rgba(54, 162, 235, 1)',   borderWidth: IMU_LINE_WIDTH, tension: 0.1 }
+                    ]},
+            options: {
+                responsive: true, maintainAspectRatio: false, normalized: true, spanGaps: true,
+                elements:   { point: { radius: 0 }}, layout: { padding: 5 }, animation: { duration: 0, easing: 'ease-in-out'},
+                scales:     { y: { beginAtZero: true, suggestedMin: 0, suggestedMax: 10 }},
+                plugins:    { legend: { display: true}, title: { display: false, text: 'DT/FT' }, tooltip: { enabled: false }}}
+        }); 
+        for(let i=0; i<IMU_ARR_SIZE; i++) dtChart1.data.labels[i] = i;
+
+        dtCtx2 = document.getElementById('dt_chart2').getContext('2d');
+        dtChart2 = new Chart(dtCtx2, {
+            type: 'line',
+            data: { labels: new Array(IMU_ARR_SIZE), 
+                    datasets: [ 
+                        { label: 'RDT', data: new Array(IMU_ARR_SIZE), backgroundColor: 'rgba(102, 205, 162, 0.2)',   borderColor: 'rgba(102, 205, 162, 1)',  borderWidth: IMU_LINE_WIDTH, tension: 0.1 },
+                        { label: 'RFT', data: new Array(IMU_ARR_SIZE), backgroundColor: 'rgba(54, 162, 235, 0.2)',    borderColor: 'rgba(54, 162, 235, 1)',   borderWidth: IMU_LINE_WIDTH, tension: 0.1 }
+                    ]},
+            options: {
+                responsive: true, maintainAspectRatio: false, normalized: true, spanGaps: true,
+                elements:   { point: { radius: 0 }}, layout: { padding: 5 }, animation: { duration: 0, easing: 'ease-in-out'},
+                scales:     { y: { beginAtZero: true, suggestedMin: 0, suggestedMax: 10 }},
+                plugins:    { legend: { display: true}, title: { display: false, text: 'RDT/RFT' }, tooltip: { enabled: false }}}
+        }); 
+        for(let i=0; i<IMU_ARR_SIZE; i++) dtChart2.data.labels[i] = i;
+    }
+    
+    function update_canvas_steer()
+    {
+        //vbm_CAR_STR_DEG = -30;
+        //vbm_CAR_STR_DEG = 0;
+        var ang, da, x1, x2, y1, y2;
+        ang = vbm_CAR_STR_DEG / 180.0 * Math.PI;
+
+        //var vbm_CAR_SPD_KMH, vbm_CAR_STR_DEG, vbm_CAR_RATIO1, vbm_CAR_RATIO2, vbm_CAR_RATIO3;
+        var cx = 55, cy = 58, r = 50;
+
+        var canvas = document.getElementById("Ctx_steer");
+        var ctx = canvas.getContext("2d");
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.globalAlpha=1.0; //0.0 = full transparancy/1.0 = no transparancy
+        
+        ctx.beginPath();ctx.arc(cx, cy, r, 0, 2 * Math.PI);ctx.closePath();
+        ctx.lineWidth = 5;
+        ctx.strokeStyle = "rgb(70,70,70)";
+        ctx.stroke(); 
+
+        da = 50 / 180.0 * Math.PI;
+        x1 = cx + r * Math.cos(ang); x2 = cx - 50 * Math.cos(ang);
+        y1 = cy + r * Math.sin(ang); y2 = cy - 50 * Math.sin(ang); 
+        ctx.beginPath(); ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.closePath();
+        ctx.lineWidth = 15;
+        ctx.strokeStyle = "rgb(70,70,70)";
+        ctx.stroke(); 
+
+        x1 = cx; x2 = cx + r * Math.cos(ang+da);
+        y1 = cy; y2 = cy + r * Math.sin(ang+da); 
+        ctx.beginPath(); ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.closePath();
+        ctx.lineWidth = 15;
+        ctx.strokeStyle = "rgb(70,70,70)";
+        ctx.stroke(); 
+
+        x1 = cx; x2 = cx - r * Math.cos(ang-da);
+        y1 = cy; y2 = cy - r * Math.sin(ang-da); 
+        ctx.beginPath(); ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.closePath();
+        ctx.lineWidth = 15;
+        ctx.strokeStyle = "rgb(70,70,70)";
+        ctx.stroke(); 
+
+        ctx.beginPath(); ctx.arc(cx, cy, 20, 0, 2 * Math.PI);ctx.closePath();
+        ctx.fillStyle = "rgb(50,50,50)";
+        ctx.fill(); 
+    }
+    function update_canvas_ratio()
+    {
+        //vbm_CAR_RATIO1 = 1;
+        //vbm_CAR_RATIO2 = 1;
+        //vbm_CAR_RATIO3 = 1;
+
+        //var h1=100, h2=100, h3=100;
+        var h1 = vbm_CAR_RATIO1 * 100.0;
+        var h2 = vbm_CAR_RATIO2 * 100.0;
+        var h3 = vbm_CAR_RATIO3 * 100.0;
+
+        var canvas = document.getElementById("Ctx_ratio");
+        var ctx = canvas.getContext("2d");
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.globalAlpha=1.0; //0.0 = full transparancy/1.0 = no transparancy
+
+        var x, y, w, h;
+        x = 10; y = 100; w = 40; h = -h1;
+        ctx.fillStyle = "rgb(70,100,70)"; ctx.fillRect(x,y,w,h);
+
+        x = 65; y = 100; w = 40; h = -h2;
+        ctx.fillStyle = "rgb(100,70,70)"; ctx.fillRect(x,y,w,h);
+
+        x = 120; y = 100; w = 40; h = -h3;
+        ctx.fillStyle = "rgb(70,70,100)"; ctx.fillRect(x,y,w,h);
+
+    }
+    var bt_menu_gui_terrain, bt_menu_gui_driving;
+
+    function bt_menu_class_driving() { vrm_sel_class_mode = 0; bt_menu_gui_terrain.style.visibility='hidden'; bt_menu_gui_terrain.style.height='0px'; bt_menu_gui_driving.style.visibility='visible'; bt_menu_gui_driving.style.height='150px';}
+    function bt_menu_class_terrain() { vrm_sel_class_mode = 1; bt_menu_gui_terrain.style.visibility='visible'; bt_menu_gui_terrain.style.height='150px'; bt_menu_gui_driving.style.visibility='hidden'; bt_menu_gui_driving.style.height='0px';}
+                
+</script>
+<style>
+    body { background-color: #141920; font-family: Arial, Helvetica, Sans-Serif; font-size: 12px; Color: #000088; margin: 1px; height:100%}
+    table.main  {border: 0px solid gray;  border-collapse: collapse; background-color: #0f1e29; padding: 1px; position: absolute;  height: 100%; width: 99.6%;}
+    td.main {border: 0px solid gray;  border-collapse: collapse; background-color: #0f1e29; padding: 1px; }
+    table.menu  {border: 1px solid #1c2842;  border-collapse: collapse; background-color: #21334b; padding: 1px; width: 100%;}
+    td.menu_h {border: 1px solid #0e1935;  border-collapse: collapse; background-color: #0e1935; padding: 3px; width: 100%; font-weight: bold; font-size: 12px; }
+    td.menu1 {border: 1px solid #1c2842;  border-collapse: collapse; background-color: #21334b; padding: 3px; width: 40%; font-weight: bold; font-size: 11px; }
+    td.menu2 {border: 1px solid #1c2842;  border-collapse: collapse; background-color: #404244; padding: 3px; width: 60%; font-weight: normal; font-size: 11px; }
+    table, td {  border: 1px solid gray;  border-collapse: collapse; background-color: #e4eff7;}
+    input { text-align: center; }
+    input[type=text] { outline: none; border: 1px solid #555;}
+    input[type=number] { outline: none; border: 1px solid #555;}
+    td.head1 {width:10%; background-color: #506b83; color: #e4eff7;}
+    td.row1 {font-weight: normal; color: #5e6469;}
+    td.btmenu1 {width:8%; font-weight: bold; font-size: 18px; padding: 2px; color: #f5f774; background-color: #101924; cursor:pointer;}
+    td.btmenu2 {width:8%; font-weight: bold; font-size: 16px; padding: 2px; color: #b6b6b6; background-color: #21334b; cursor:pointer;}   
+    td {font-size: 12px; font-weight: bold; color: #a5b2bd; text-align: center; padding: 0px; background-color: #263847;}            
+    td.btmenu3 {width:8%; font-weight: bold; font-size: 18px; padding: 4px; color: #f5f774; background-color: #101924; cursor:pointer;}
+    td.btmenu4 {width:8%; font-weight: bold; font-size: 16px; padding: 4px; color: #b6b6b6; background-color: #21334b; cursor:pointer;}
+    td.btmenu5 {font-weight: bold; font-size: 12px; padding: 2px; color: #b9b9b9; background-color: #081b33; cursor:pointer; border: 1px solid rgb(60, 60, 60);  border-collapse: collapse; }   
+    td.btmenu6 {font-weight: bold; font-size: 18px; padding: 2px; color: #f5f774; background-color: #101924; cursor:pointer; border: 1px solid rgb(60, 60, 60);  border-collapse: collapse; }       
+    td.btmenu7 {font-weight: bold; font-size: 12px; padding: 2px; color: #b9b9b9; background-color: #101924; cursor:pointer; border: 1px solid rgb(60, 60, 60);  border-collapse: collapse; }       
+    td.btmenu8 {font-weight: bold; font-size: 110px; padding: 0px; color: #f5f774; border: 1px; cursor:pointer; }       
+    td.btmenu9 {font-weight: bold; font-size: 40px; padding: 18px; color: #b9b9b9; border: 1px; cursor:pointer; }       
+    td.btmenu10 {font-weight: bold; font-size: 50px; padding: 0px; color: #b9b9b9; border: 1px; cursor:pointer; }       
+    td.btmenu11 {font-weight: bold; font-size: 18px; padding: 9px; color: #b9b9b9; border: 1px; cursor:pointer; }       
+</style>
+<body onload='body_onload_handler()' onresize="body_onresize_handler()">
+    <table class='main'>
+        <tr><td colspan='3' style='border: 0px;'>
+            <table style='border: 0px;' width='100%'><tr><td id='td_top_alarm' style='border: 0px; height: 0px; background-color: #ac1515; color: #a3a3a3;'></td></tr></table>
+        </td></tr>
+        <tr><td colspan='3' style='border: 0px;'>
+            <table style='border: 0px;' width='100%'><tr><td id='td_top_notice' style='border: 0px; height: 0px; background-color: #d0c311; color: #751e03;'></td></tr></table>
+        </td></tr>
+        <tr>
+            <td class='main' colspan='3'>
+                <table width='100%' style='table-layout:fixed;'>
+                    <tr>
+                        <td id='tm_LOGO' width='6%' valign='bottom' onclick='logo_click_handler()' style='cursor:pointer;'>
+                            <img src='http://localhost/logo.png' alt='SYNEREX' height='20px' style='object-fit: cover; cursor:pointer; padding:0px;'>
+                        </td>
+                        <td id='tm_MAIN' width='6%' onclick='debug_overlay()' style='cursor:pointer;'>MAIN</td>
+                        <td id='tm_ETH' width='6%' >ETH</td>
+                        <td id='tm_WIFI' width='6%' >WIFI</td>
+                        <td id='tm_CAN' width='6%' >CAN</td>
+                        <td id='tm_RS232' width='6%' >RS232</td>
+                        <td id='tm_BTSRL' width='6%' >BTSRL</td>
+                        <td id='tm_SOL' width='6%' onclick='toggleCenter()' style='cursor:pointer;'>SOLUTION</td>
+                        <td id='tm_GPS1' width='6%' >GPS1</td>
+                        <td id='tm_GPS2' width='6%' >GPS2</td>
+                        <td id='tm_NTRIP' width='6%' >NTRIP</td>
+                        <td id='tm_EBIMU' width='6%' onclick='ebimu_overlay()' style='cursor:pointer;'>EBIMU</td>
+                        <td id='tm_EXIMU' width='6%' onclick='eximu_overlay()' style='cursor:pointer;'>EXIMU</td>
+                        <td id='tm_ADIMU' width='6%' onclick='adimu_overlay()' style='cursor:pointer;'>BNIMU</td>
+                        <td id='tm_OBDBT' width='6%' >OBD_BT</td>
+                        <td id='tm_CARCAN' width='6%' >CAR_CAN</td>
+                        <td id='tm_CAMERA' width='6%' >CAMERA</td>
+                        <td id='tm_DRREADY' width='6%' >DR READY</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td id='mtb_td1' class='main' width='0%' valign='top'>
+                <table id='mtb_td1_tbl' class='menu' style='table-layout:fixed;'>
+                    <tr><td class='menu_h' colspan='2' onclick='show_speed_view()' style='cursor:pointer;'>SYSTEM</td></tr>
+                    <tr><td class='menu1'>SRC</td><td class='menu2' id='lm_SYS_SRC'>0</td></tr>
+                    <tr><td class='menu1'>ID</td><td class='menu2' id='lm_SYS_ID'>0</td></tr>
+                    <tr><td class='menu1'>DT/FT</td><td class='menu1' id='lm_SYS_DT' onclick='dt_overlay()' style='cursor:pointer;'>0</td></tr>  
+                    <tr><td class='menu1'>RDT/RFT</td><td class='menu1' id='lm_SYS_RDT' onclick='dt_overlay()' style='cursor:pointer;'>0</td></tr>  
+                    <tr><td class='menu1'>TM</td><td class='menu2' id='lm_SYS_TM'>0</td></tr>  
+                    <tr><td class='menu1'>PWR</td><td class='menu2' id='lm_SYS_PWR'>0</td></tr>                                          
+                    <tr><td class='menu_h' colspan='2'>SOLUTION</td></tr>
+                    <tr><td class='menu1'>TYPE</td><td class='menu2' id='lm_SOL_TYPE'>0</td></tr>
+                    <tr><td class='menu1'>LAT</td><td class='menu2' id='lm_SOL_LAT'>0</td></tr>   
+                    <tr><td class='menu1'>LON</td><td class='menu2' id='lm_SOL_LON'>0</td></tr>  
+                    <tr><td class='menu1'>HEIGHT</td><td class='menu2' id='lm_SOL_HEIGHT'>0</td></tr> 
+                    <tr><td class='menu1'>HEAD</td><td class='menu2' id='lm_SOL_HEAD'>0</td></tr>  
+                    <tr><td class='menu1'>SPEED</td><td class='menu2' id='lm_SOL_SPEED'>0</td></tr>   
+                    <tr><td class='menu1'>DATE</td><td class='menu2' id='lm_SOL_DATE'>0</td></tr> 
+                    <tr><td class='menu1'>TIME</td><td class='menu2' id='lm_SOL_TIME'>0</td></tr>
+                    <tr><td class='menu_h' colspan='2'>UBX-0</td></tr>
+                    <tr><td class='menu1'>STATE</td><td class='menu2' id='lm_U0_STATE'>0</td></tr>
+                    <tr><td class='menu1'>DT(ms)</td><td class='menu2' id='lm_U0_DT'>0</td></tr>   
+                    <tr><td class='menu1'>NUMSV</td><td class='menu2' id='lm_U0_NUMSV'>0</td></tr>  
+                    <tr><td class='menu1'>LAT</td><td class='menu2' id='lm_U0_LAT'>0</td></tr>  
+                    <tr><td class='menu1'>LON</td><td class='menu2' id='lm_U0_LON'>0</td></tr>   
+                    <tr><td class='menu1'>HEIGHT</td><td class='menu2' id='lm_U0_HEIGHT'>0</td></tr> 
+                    <!--<tr><td class='menu1'>HMSL</td><td class='menu2' id='lm_U0_HMSL'>0</td></tr>-->
+                    <tr><td class='menu1'>H_ACC</td><td class='menu2' id='lm_U0_HACC'>0</td></tr>  
+                    <!--<tr><td class='menu1'>V_ACC</td><td class='menu2' id='lm_U0_VACC'>0</td></tr>-->   
+                    <tr><td class='menu1'>PDOP</td><td class='menu2' id='lm_U0_PDOP'>0</td></tr> 
+                    <!--<tr><td class='menu1'>FXT/FXO/DFS</td><td class='menu2' id='lm_U0_FIXTYPE'>0</td></tr>-->
+                    <!--<tr><td class='menu1'>I2C/CBF/LLH</td><td class='menu2' id='lm_U0_I2C'>0</td></tr>-->
+                    <tr><td class='menu1'>RTK FIX</td><td class='menu2' id='lm_U0_CRRSLN'>0</td></tr>  
+                    <tr><td class='menu1'>RTCM</td><td class='menu2' id='lm_U0_RTCM'>0</td></tr> 
+                    <tr><td class='menu_h' colspan='2'>UBX-1</td></tr>
+                    <tr><td class='menu1'>STATE</td><td class='menu2' id='lm_U1_STATE'>0</td></tr>
+                    <tr><td class='menu1'>DT(ms)</td><td class='menu2' id='lm_U1_DT'>0</td></tr>   
+                    <tr><td class='menu1'>NUMSV</td><td class='menu2' id='lm_U1_NUMSV'>0</td></tr>  
+                    <tr><td class='menu1'>LAT</td><td class='menu2' id='lm_U1_LAT'>0</td></tr>  
+                    <tr><td class='menu1'>LON</td><td class='menu2' id='lm_U1_LON'>0</td></tr>   
+                    <tr><td class='menu1'>HEIGHT</td><td class='menu2' id='lm_U1_HEIGHT'>0</td></tr> 
+                    <!--<tr><td class='menu1'>HMSL</td><td class='menu2' id='lm_U1_HMSL'>0</td></tr>--> 
+                    <tr><td class='menu1'>H_ACC</td><td class='menu2' id='lm_U1_HACC'>0</td></tr>  
+                    <!--<tr><td class='menu1'>V_ACC</td><td class='menu2' id='lm_U1_VACC'>0</td></tr>-->    
+                    <tr><td class='menu1'>PDOP</td><td class='menu2' id='lm_U1_PDOP'>0</td></tr> 
+                    <!--<tr><td class='menu1'>FXT/FXO/DFS</td><td class='menu2' id='lm_U1_FIXTYPE'>0</td></tr>--> 
+                    <!--<tr><td class='menu1'>I2C/CBF/LLH</td><td class='menu2' id='lm_U1_I2C'>0</td></tr>--> 
+                    <tr><td class='menu1'>RTK FIX</td><td class='menu2' id='lm_U1_CRRSLN'>0</td></tr>  
+                    <tr><td class='menu1'>RTCM</td><td class='menu2' id='lm_U1_RTCM'>0</td></tr>  
+                    <tr><td class='menu_h' colspan='2'>NTRIP</td></tr>
+                    <tr><td class='menu1'>RTCM</td><td class='menu2' id='lm_NTRIP_BYTES'>0</td></tr>                                 
+                </table>
+            </td>
+            <td id='mtb_td2' class='main' width='100%' valign='top' >
+                <div id ='googleMap' style='width:100%; height:50%; background-color: #5e6469;'>  
+                    <script async src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyCruSkdGuaAv5ysSwS8Y4Y1m_oP6b-e4j0&callback=initMap&libraries=geometry&loading=async'></script>                    
+                </div>
+            </td>
+            <td id='mtb_td3' class='main' width='0%' valign='top'>
+                <table id='mtb_td3_tbl' class='menu' style='table-layout:fixed;'>
+                    <tr><td class='menu_h' colspan='4'>GPS PATH</td></tr>
+                    <tr><td class='menu1' colspan='2'>Dist (Total)</td><td class='menu2' colspan='2' id='rm_PATH_ID'>0</td></tr>
+                    <tr>
+                        <td class='menu1' colspan='2'><table width="100%" height="11px" style='table-layout:fixed;'><tr><td id='rm_PATH_CLR' style="background-color:rgb(10, 50, 100); ">0</td></tr></table></td>
+                        <td class='menu2' colspan='2'>
+                            <select id='rm_PATH_SEL' value='0' onchange='wp_on_change_path_sel();' style='background-color: rgb(133, 152, 175);'>
+                                <option value='0'> [0] Path</option>
+                                <option value='1'> [1] Path</option>
+                                <option value='2'> [2] Path</option>
+                                <option value='3'> [3] Path</option>
+                                <option value='4'> [4] Path</option>
+                                <option value='5'> [5] Path</option>
+                                <option value='6'> [6] Path</option>
+                                <option value='7'> [7] Path</option>
+                                <option value='8'> [8] Path</option>
+                                <option value='9'> [9] Path</option>
+                          </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class='menu1' colspan='2'><table width="100%" height="14px" style='table-layout:fixed;'><tr><td id='rm_PATH_BTN1' style="background-color:rgb(10, 50, 100); cursor:pointer;" onclick='wp_on_button_adding()'>None</td></tr></table></td>
+                        <td class='menu1' colspan='2'><table width="100%" height="14px" style='table-layout:fixed;'><tr><td id='rm_PATH_BTN2' style="background-color:rgb(10, 50, 100); cursor:pointer;" onclick='wp_on_button_clear()'>Clear</td></tr></table></td>
+                    </tr>
+                    <tr></tr>
+                        <td class='menu1' colspan='2'><table width="100%" height="14px" style='table-layout:fixed;'><tr><td style="background-color:rgb(10, 50, 100); cursor:pointer;" onclick='wp_on_button_save()'>Save</td><td style="background-color:rgb(10, 50, 100); cursor:pointer;" onclick='wp_on_button_load()'>Load</td></tr></table></td>
+                        <td class='menu1' colspan='2'>
+                            <select id='rm_DIST_SEL' value='1' onchange='wp_on_change_dist_sel();' style='background-color: rgb(133, 152, 175);'>
+                                <option value='1'> > 1 m</option>
+                                <option value='2'> > 2 m</option>
+                                <option value='5'> > 5 m</option>
+                                <option value='10'> > 10 m</option>
+                                <option value='20'> > 20 m</option>
+                                <option value='50'> > 50 m</option>
+                                <option value='100'> > 100 m</option>
+                          </select>
+                        </td>
+                    </tr>
+                    <tr><td class='menu_h' colspan='4'>PTWIRE AIN</td></tr>
+                    <tr><td class='menu1' colspan='2'>PTW AIN 0</td><td class='menu2' id='rm_PTW0' colspan='2'>0</td></tr>
+                    <tr><td class='menu1' colspan='2'>PTW AIN 1</td><td class='menu2' id='rm_PTW1' colspan='2'>0</td></tr>  
+                    <tr><td class='menu1' colspan='2'>PTW AIN 2</td><td class='menu2' id='rm_PTW2' colspan='2'>0</td></tr>         
+                    <tr><td class='menu_h' colspan='4'>EX-IMU</td></tr>
+                    <tr><td class='menu1'>EX0_x</td><td class='menu2' id='rm_EXI00'>0</td><td class='menu1'>EX0_dt</td><td class='menu2' id='bm_CAR_SR_DT1'>0</td></tr>
+                    <tr><td class='menu1'>EX0_y</td><td class='menu2' id='rm_EXI01'>0</td><td class='menu1'>EX0_bt</td><td class='menu2'><table width="100%" height="11px" style='table-layout:fixed;'><tr><td id='bm_CAR_SR_BT1' style="background-color:rgb(69, 86, 133); "></td><td></td></tr></table></td></tr>
+                    <tr><td class='menu1'>EX1_x</td><td class='menu2' id='rm_EXI10'>0</td><td class='menu1'>EX1_dt</td><td class='menu2' id='bm_CAR_SR_DT2'>0</td></tr>
+                    <tr><td class='menu1'>EX1_y</td><td class='menu2' id='rm_EXI11'>0</td><td class='menu1'>EX1_bt</td><td class='menu2'><table width="100%" height="11px" style='table-layout:fixed;'><tr><td id='bm_CAR_SR_BT2' style="background-color:rgb(69, 86, 133); "></td><td></td></tr></table></td></tr>
+                    <tr><td class='menu1'>EX2_x</td><td class='menu2' id='rm_EXI20'>0</td><td class='menu1'>EX2_dt</td><td class='menu2' id='bm_CAR_SR_DT3'>0</td></tr>
+                    <tr><td class='menu1'>EX2_y</td><td class='menu2' id='rm_EXI21'>0</td><td class='menu1'>EX2_bt</td><td class='menu2'><table width="100%" height="11px" style='table-layout:fixed;'><tr><td id='bm_CAR_SR_BT3' style="background-color:rgb(69, 86, 133); "></td><td></td></tr></table></td></tr>
+                    <tr><td class='menu1'>EX3_x</td><td class='menu2' id='rm_EXI30'>0</td><td class='menu1'>EX3_dt</td><td class='menu2' id='bm_CAR_SR_DT4'>0</td></tr>
+                    <tr><td class='menu1'>EX3_y</td><td class='menu2' id='rm_EXI31'>0</td><td class='menu1'>EX3_bt</td><td class='menu2'><table width="100%" height="11px" style='table-layout:fixed;'><tr><td id='bm_CAR_SR_BT4' style="background-color:rgb(69, 86, 133); "></td><td></td></tr></table></td></tr>
+                    <tr><td class='menu1'>EX4_x</td><td class='menu2' id='rm_EXI40'>0</td><td class='menu1'>EX4_dt</td><td class='menu2' id='bm_CAR_SR_DT5'>0</td></tr>
+                    <tr><td class='menu1'>EX4_y</td><td class='menu2' id='rm_EXI41'>0</td><td class='menu1'>EX4_bt</td><td class='menu2'><table width="100%" height="11px" style='table-layout:fixed;'><tr><td id='bm_CAR_SR_BT5' style="background-color:rgb(69, 86, 133); "></td><td></td></tr></table></td></tr>
+                    <tr><td class='menu_h' colspan='4'>BN-IMU</td></tr>
+                    <tr><td class='menu1' colspan='2'>DT (ms)</td><td class='menu2' colspan='2' id='rm_BN_DTMS'>0</td></tr>
+                    <tr><td class='menu1' colspan='2'>ATT [0]</td><td class='menu2' colspan='2' id='rm_BN_ATT0'>0</td></tr>
+                    <tr><td class='menu1' colspan='2'>ATT [1]</td><td class='menu2' colspan='2' id='rm_BN_ATT1'>0</td></tr>
+                    <tr><td class='menu1' colspan='2'>ATT [2]</td><td class='menu2' colspan='2' id='rm_BN_ATT2'>0</td></tr>
+                    <tr><td class='menu1' colspan='2'>GYR [0]</td><td class='menu2' colspan='2' id='rm_BN_GYR0'>0</td></tr>
+                    <tr><td class='menu1' colspan='2'>GYR [1]</td><td class='menu2' colspan='2' id='rm_BN_GYR1'>0</td></tr>
+                    <tr><td class='menu1' colspan='2'>GYR [2]</td><td class='menu2' colspan='2' id='rm_BN_GYR2'>0</td></tr>
+                    <tr><td class='menu1' colspan='2'>ACC [0]</td><td class='menu2' colspan='2' id='rm_BN_ACC0'>0</td></tr>
+                    <tr><td class='menu1' colspan='2'>ACC [1]</td><td class='menu2' colspan='2' id='rm_BN_ACC1'>0</td></tr>
+                    <tr><td class='menu1' colspan='2'>ACC [2]</td><td class='menu2' colspan='2' id='rm_BN_ACC2'>0</td></tr>
+                    <tr><td class='menu_h' colspan='4'>EB-IMU</td></tr>
+                    <tr><td class='menu1' colspan='2'>DT (ms)</td><td class='menu2' colspan='2' id='rm_EB_DTMS'>0</td></tr>
+                    <tr><td class='menu1' colspan='2'>ATT [0]</td><td class='menu2' colspan='2' id='rm_EB_ATT0'>0</td></tr>
+                    <tr><td class='menu1' colspan='2'>ATT [1]</td><td class='menu2' colspan='2' id='rm_EB_ATT1'>0</td></tr>
+                    <tr><td class='menu1' colspan='2'>ATT [2]</td><td class='menu2' colspan='2' id='rm_EB_ATT2'>0</td></tr>
+                    <tr><td class='menu1' colspan='2'>GYR [0]</td><td class='menu2' colspan='2' id='rm_EB_GYR0'>0</td></tr>
+                    <tr><td class='menu1' colspan='2'>GYR [1]</td><td class='menu2' colspan='2' id='rm_EB_GYR1'>0</td></tr>
+                    <tr><td class='menu1' colspan='2'>GYR [2]</td><td class='menu2' colspan='2' id='rm_EB_GYR2'>0</td></tr>
+                    <tr><td class='menu1' colspan='2'>ACC [0]</td><td class='menu2' colspan='2' id='rm_EB_ACC0'>0</td></tr>
+                    <tr><td class='menu1' colspan='2'>ACC [1]</td><td class='menu2' colspan='2' id='rm_EB_ACC1'>0</td></tr>
+                    <tr><td class='menu1' colspan='2'>ACC [2]</td><td class='menu2' colspan='2' id='rm_EB_ACC2'>0</td></tr>
+                    <tr><td class='menu_h' colspan='4'>DR</td></tr>
+                    <tr><td class='menu1' colspan='2'>SPD SRC</td><td class='menu2' colspan='2' id='rm_SPD_SRC'>0</td></tr>
+                    <tr><td class='menu1' colspan='2'>SPD DATA</td><td class='menu2' colspan='2' id='rm_SPD_DATA'>0</td></tr>
+                    <tr><td class='menu1' colspan='2'>DIR SRC</td><td class='menu2' colspan='2' id='rm_DIR_SRC'>0</td></tr>
+                    <tr><td class='menu1' colspan='2'>DIR DATA</td><td class='menu2' colspan='2' id='rm_DIR_DATA'>0</td></tr>
+                    <tr><td class='menu1' colspan='2'>CAR WHLB</td><td class='menu2' colspan='2' id='rm_CAR_WHBSE'>0</td></tr> 
+                    <tr><td class='menu1' colspan='2'>CAR FDIST</td><td class='menu2' colspan='2' id='rm_CAR_FDIST'>0</td></tr> 
+                    <tr><td class='menu1' colspan='2'>CAR RDIST</td><td class='menu2' colspan='2' id='rm_CAR_RDIST'>0</td></tr> 
+                    <tr><td class='menu1' colspan='2'>CAR TRKW</td><td class='menu2' colspan='2' id='rm_CAR_TRKW'>0</td></tr> 
+                    <tr><td class='menu1' colspan='2'>CAR CAN</td><td class='menu2' colspan='2' id='rm_CAR_CAN'>0</td></tr> 
+                    <tr><td class='menu1' colspan='2'>SPD CALB</td><td class='menu2' colspan='2' id='rm_SPD_CALB'>0</td></tr> 
+                    <tr><td class='menu1' colspan='2'>SPD RATIO</td><td class='menu2' colspan='2' id='rm_SPD_RATIO'>0</td></tr> 
+                    <tr><td class='menu_h' colspan='4'>SYS STATE</td></tr>
+                    <tr><td class='menu2' colspan='2' id='rm_SYST_IESP32'>IESP32</td>   <td class='menu2' colspan='2' id='rm_SYST_OPOWER'>OPOWER</td></tr>
+                    <tr><td class='menu2' colspan='2' id='rm_SYST_IOBD'>IOBD</td>       <td class='menu2' colspan='2' id='rm_SYST_OESP32'>OESP32</td></tr>
+                    <tr><td class='menu2' colspan='2' id='rm_SYST_INTRIP'>INTRIP</td>   <td class='menu2' colspan='2' id='rm_SYST_OETH'>OETH</td></tr>
+                    <tr><td class='menu2' colspan='2' id='rm_SYST_IEBIMU'>IEBIMU</td>   <td class='menu2' colspan='2' id='rm_SYST_OCAN'>OCAN</td></tr>
+                    <tr><td class='menu2' colspan='2' id='rm_SYST_IEXIMU'>IEXIMU</td>   <td class='menu2' colspan='2' id='rm_SYST_ORS232'>ORS232</td></tr>
+                    <tr><td class='menu2' colspan='2' id='rm_SYST_IADIMU'>IADIMU</td>   <td class='menu2' colspan='2' id='rm_SYST_ORS485'>ORS485</td></tr>
+                    <tr><td class='menu2' colspan='2' id='rm_SYST_ICARCAN'>ICARCAN</td> <td class='menu2' colspan='2' id='rm_SYST_OWIFI'>OWIFI</td></tr>
+                    <tr><td class='menu2' colspan='2' id='rm_SYST_ICAMERA'>ICAMERA</td> <td class='menu2' colspan='2' id='rm_SYST_OBT'>OBT</td></tr>     
+                </table>
+            </td>            
+        </tr>                
+    </table> 
+    <div id='debug_overlay'>
+        <table style='table-layout:fixed;' width='100%' height='100%'>
+            <!--
+            <tr>
+                <td class='btmenu1' id='bm_TIMER_HZ' rowspan='2'>0</td>
+                <td class='btmenu1' id='bm_DR_SPD_KMH' rowspan='2'>0</td>
+                <td class='btmenu1' id='bm_DR_ANG_VEL' rowspan='2'>0</td>
+                <td class='btmenu2' onmouseover='button_hover(this)' onmouseleave='button_hout(this)' onmousedown='button_click(this)' onclick='fire_command(1)'>Ubx-1 ON</td>
+                <td class='btmenu2' onmouseover='button_hover(this)' onmouseleave='button_hout(this)' onmousedown='button_click(this)' onclick='fire_command(2)'>Ubx-1 OFF</td>
+                <td class='btmenu2' onmouseover='button_hover(this)' onmouseleave='button_hout(this)' onmousedown='button_click(this)' onclick='fire_command(3)'>Ubx-2 ON</td>
+                <td class='btmenu2' onmouseover='button_hover(this)' onmouseleave='button_hout(this)' onmousedown='button_click(this)' onclick='fire_command(4)'>Ubx-2 OFF</td>
+                <td class='btmenu2' onmouseover='button_hover(this)' onmouseleave='button_hout(this)' onmousedown='button_click(this)' onclick='fire_command(5)'>Ubx-12 ON</td>
+                <td class='btmenu2' onmouseover='button_hover(this)' onmouseleave='button_hout(this)' onmousedown='button_click(this)' onclick='fire_command(6)'>Ubx-12 OFF</td>
+                <td class='btmenu2' rowspan='2' onmouseover='button_hover(this)' onmouseleave='button_hout(this)' onmousedown='button_click(this)' onclick='fire_command(7)'>Rtcm ON</td>
+                <td class='btmenu2' rowspan='2' onmouseover='button_hover(this)' onmouseleave='button_hout(this)' onmousedown='button_click(this)' onclick='fire_command(8)'>Rtcm OFF</td>
+                <td class='btmenu2' rowspan='2' onmouseover='button_hover(this)' onmouseleave='button_hout(this)' onmousedown='button_click(this)' onclick='fire_command(9)'>WEB ADMIN</td>                        
+            </tr>
+            <tr>
+                <td class='btmenu2' onmouseover='button_hover(this)' onmouseleave='button_hout(this)' onmousedown='button_click(this)' onclick='fire_command(10)'>Crs-1 ON</td>
+                <td class='btmenu2' onmouseover='button_hover(this)' onmouseleave='button_hout(this)' onmousedown='button_click(this)' onclick='fire_command(11)'>Crs-1 OFF</td>
+                <td class='btmenu2' onmouseover='button_hover(this)' onmouseleave='button_hout(this)' onmousedown='button_click(this)' onclick='fire_command(12)'>Crs-2 ON</td>
+                <td class='btmenu2' onmouseover='button_hover(this)' onmouseleave='button_hout(this)' onmousedown='button_click(this)' onclick='fire_command(13)'>Crs-2 OFF</td>
+                <td class='btmenu2' onmouseover='button_hover(this)' onmouseleave='button_hout(this)' onmousedown='button_click(this)' onclick='fire_command(14)'>Crs-12 ON</td>
+                <td class='btmenu2' onmouseover='button_hover(this)' onmouseleave='button_hout(this)' onmousedown='button_click(this)' onclick='fire_command(15)'>Crs-12 OFF</td>
+            </tr>
+            -->
+            <tr>
+                <td class='btmenu3' style='padding:4px;'>
+                    <table width='100%' height='100%' style='table-layout:fixed;' >
+                        <tr><td class='btmenu5' width='50%'>SPD (km/h)</td><td class='btmenu6' width='50%'id='bm_CAR_SPD_KMH'>0</td></tr>
+                        <tr><td class='btmenu5'>Dist (km)</td><td class='btmenu6' id='bm_CAR_TRV_DIST1' >0</td></tr>
+                        <tr><td class='btmenu5'>Total (km)</td><td class='btmenu6' id='bm_CAR_TRV_DIST2' >0</td></tr>
+                        <tr><td class='btmenu5'>GUI (Hz)</td><td class='btmenu6' id='bm_TIMER_HZ' >0</td></tr>
+                    </table>
+                </td>                
+                <td class='btmenu3' style='padding:4px;'>
+                    <table width='100%' height='100%' style='table-layout:fixed;' >
+                        <tr><td class='btmenu5' width='60%' height='15px'>Steer (deg)</td><td class='btmenu7' width='40%' id='bm_CAR_STR_DEG'>0</td></tr>                        
+                        <tr><td class='btmenu5' colspan="2">
+                            <canvas id="Ctx_steer" width="110px" height="110px" ></canvas>
+                        </td></tr>
+                    </table>
+                </td>
+                <td class='btmenu3' style='padding:4px;'>
+                    <table width='100%' height='100%' style='table-layout:fixed;' >
+                        <tr>
+                            <td class='btmenu5' width='33%' height='15px'>Accel</td>
+                            <td class='btmenu5' width='34%' height='15px'>Brake</td>
+                            <td class='btmenu5' width='33%' height='15px'>Rsvd</td>
+                        </tr>
+                        <tr>
+                            <td class='btmenu7' height='15px' id='bm_CAR_RATIO1'>0</td>
+                            <td class='btmenu7' height='15px' id='bm_CAR_RATIO2'>0</td>
+                            <td class='btmenu7' height='15px' id='bm_CAR_RATIO3'>0</td>
+                        </tr>
+                        <tr>
+                            <td class='btmenu5' colspan="3" style="padding:0px;">
+                                <canvas id="Ctx_ratio" width="170px" height="100px" ></canvas>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+                <td>
+                    <div id="bt_menu_gui_terrain" style="visibility:hidden; height:0px;">
+                        <table width='100%' height='100%' style='table-layout:fixed;'>
+                            <tr>
+                                <td class='btmenu4' id='rm_TerrainType0' onmouseover='button_hover(this)' onmouseleave='button_hout2(this, 0)' onmousedown='button_click(this)' onclick='fire_command(100)' >None</td>
+                                <td class='btmenu4' id='rm_TerrainType1' onmouseover='button_hover(this)' onmouseleave='button_hout2(this, 1)' onmousedown='button_click(this)' onclick='fire_command(101)'><img width="150px" height="140px" src="http://localhost/KAR_ST1.JPG" alt="Type-1" title="Type-1" style="opacity:0.9;"></td>
+                                <td class='btmenu4' id='rm_TerrainType2' onmouseover='button_hover(this)' onmouseleave='button_hout2(this, 2)' onmousedown='button_click(this)' onclick='fire_command(102)'><img width="150px" height="140px" src="http://localhost/KAR_ST2.JPG" alt="Type-2" title="Type-2" style="opacity:0.9;"></td>
+                                <td class='btmenu4' id='rm_TerrainType3' onmouseover='button_hover(this)' onmouseleave='button_hout2(this, 3)' onmousedown='button_click(this)' onclick='fire_command(103)'><img width="150px" height="140px" src="http://localhost/KAR_ST3.JPG" alt="Type-3" title="Type-3" style="opacity:0.9;"></td>
+                                <td class='btmenu4' id='rm_TerrainType4' onmouseover='button_hover(this)' onmouseleave='button_hout2(this, 4)' onmousedown='button_click(this)' onclick='fire_command(104)'><img width="150px" height="140px" src="http://localhost/KAR_ST4.JPG" alt="Type-4" title="Type-4" style="opacity:0.9;"></td>
+                                <td class='btmenu4' id='rm_TerrainType5' onmouseover='button_hover(this)' onmouseleave='button_hout2(this, 5)' onmousedown='button_click(this)' onclick='fire_command(105)'><img width="150px" height="140px" src="http://localhost/KAR_ST5.JPG" alt="Type-5" title="Type-5" style="opacity:0.9;"></td>
+                                <td class='btmenu4' id='rm_TerrainType6' onmouseover='button_hover(this)' onmouseleave='button_hout2(this, 6)' onmousedown='button_click(this)' onclick='fire_command(106)'><img width="150px" height="140px" src="http://localhost/KAR_ST6.JPG" alt="Type-6" title="Type-6" style="opacity:0.9;"></td>
+                                <td class='btmenu4' id='rm_TerrainType7' onmouseover='button_hover(this)' onmouseleave='button_hout2(this, 7)' onmousedown='button_click(this)' onclick='fire_command(107)'><img width="150px" height="140px" src="http://localhost/KAR_ST7.JPG" alt="Type-7" title="Type-7" style="opacity:0.9;"></td>
+                                <!--<td class='btmenu4' id='rm_TerrainType8' onmouseover='button_hover(this)' onmouseleave='button_hout2(this, 8)' onmousedown='button_click(this)' onclick='fire_command(108)'>Type-8</td>-->
+                                <!--
+                                <td class='btmenu2' onmouseover='button_hover(this)' onmouseleave='button_hout(this)' onmousedown='button_click(this)' onclick='fire_command(5)'>Ubx-12 ON</td>
+                                <td class='btmenu2' onmouseover='button_hover(this)' onmouseleave='button_hout(this)' onmousedown='button_click(this)' onclick='fire_command(6)'>Ubx-12 OFF</td>                
+                                -->
+                            </tr>
+                        </table> 
+                    </div>   
+                    <div id="bt_menu_gui_driving" style="visibility:hidden; height:0px;">
+                        <table width='100%' height='100%' style='table-layout:fixed;' >
+                            <tr>
+                                <td class='btmenu4' id='rm_DrivingType0' onmouseover='button_hover(this)' onmouseleave='button_hout2(this, 0)' onmousedown='button_click(this)' onclick='fire_command(100)' >None</td>
+                                <td class='btmenu4' id='rm_DrivingType1' onmouseover='button_hover(this)' onmouseleave='button_hout2(this, 1)' onmousedown='button_click(this)' onclick='fire_command(101)'><img width="150px" height="140px" src="http://localhost/DRV_CS1.png" alt="Type-1" title="Type-1" style="opacity:0.8;"></td>
+                                <td class='btmenu4' id='rm_DrivingType2' onmouseover='button_hover(this)' onmouseleave='button_hout2(this, 2)' onmousedown='button_click(this)' onclick='fire_command(102)'><img width="150px" height="140px" src="http://localhost/DRV_CS2.png" alt="Type-1" title="Type-1" style="opacity:0.8;"></td>
+                                <td class='btmenu4' id='rm_DrivingType3' onmouseover='button_hover(this)' onmouseleave='button_hout2(this, 3)' onmousedown='button_click(this)' onclick='fire_command(103)'><img width="150px" height="140px" src="http://localhost/DRV_CS3.png" alt="Type-1" title="Type-1" style="opacity:0.8;"></td>
+                                <td class='btmenu4' id='rm_DrivingType4' onmouseover='button_hover(this)' onmouseleave='button_hout2(this, 4)' onmousedown='button_click(this)' onclick='fire_command(104)'><img width="150px" height="140px" src="http://localhost/DRV_CS4.png" alt="Type-1" title="Type-1" style="opacity:0.8;"></td>
+                                <td class='btmenu4' id='rm_DrivingType5' onmouseover='button_hover(this)' onmouseleave='button_hout2(this, 5)' onmousedown='button_click(this)' onclick='fire_command(105)'><img width="150px" height="140px" src="http://localhost/DRV_CS5.png" alt="Type-1" title="Type-1" style="opacity:0.8;"></td>
+                                <td class='btmenu4' id='rm_DrivingType6' onmouseover='button_hover(this)' onmouseleave='button_hout2(this, 6)' onmousedown='button_click(this)' onclick='fire_command(106)'><img width="150px" height="140px" src="http://localhost/DRV_CS6.png" alt="Type-1" title="Type-1" style="opacity:0.8;"></td>
+                                <td class='btmenu4' id='rm_DrivingType7' onmouseover='button_hover(this)' onmouseleave='button_hout2(this, 7)' onmousedown='button_click(this)' onclick='fire_command(107)'><img width="150px" height="140px" src="http://localhost/DRV_CS7.png" alt="Type-1" title="Type-1" style="opacity:0.8;"></td>
+                                <!--<td class='btmenu4' id='rm_TerrainType8' onmouseover='button_hover(this)' onmouseleave='button_hout2(this, 8)' onmousedown='button_click(this)' onclick='fire_command(108)'>Type-8</td>-->
+                                <!--
+                                <td class='btmenu2' onmouseover='button_hover(this)' onmouseleave='button_hout(this)' onmousedown='button_click(this)' onclick='fire_command(5)'>Ubx-12 ON</td>
+                                <td class='btmenu2' onmouseover='button_hover(this)' onmouseleave='button_hout(this)' onmousedown='button_click(this)' onclick='fire_command(6)'>Ubx-12 OFF</td>                
+                                -->
+                            </tr>
+                        </table> 
+                    </div>                       
+                </td>
+            </tr>            
+        </table>    
+    </div>   
+    <div id='ebimu_overlay' >
+        <table style='table-layout:fixed;' width='100%' height='200px'>
+            <tr>
+                <td width='50%' style='padding:4px; background-color:#102650;'>EBIMU Accel (m/s2)</td>            
+                <td width='50%' style='padding:4px; background-color:#102650;'>EBIMU Gyro (deg/s)</td>
+            </tr>
+            <tr>
+                <td><canvas id='ebimu_chart1'></canvas></td>            
+                <td><canvas id='ebimu_chart2'></canvas></td>
+            </tr>
+        </table>
+    </div>  
+    <div id='adimu_overlay'>
+        <table style='table-layout:fixed;' width='100%' height='200px'>
+            <tr>
+                <td width='50%' style='padding:4px; background-color:#102650;'>BNIMU Accel (m/s2)</td>            
+                <td width='50%' style='padding:4px; background-color:#102650;'>BNIMU Gyro (deg/s)</td>
+            </tr>
+            <tr>
+                <td><canvas id='adimu_chart1'></canvas></td>            
+                <td><canvas id='adimu_chart2'></canvas></td>
+            </tr>
+        </table>
+    </div>   
+    <div id='eximu_overlay'>
+        <table style='table-layout:fixed;' width='100%' height='200px'>
+            <tr>
+                <td width='50%' style='padding:4px; background-color:#102650;'>EXIMU REF</td>            
+                <td width='50%' style='padding:4px; background-color:#102650;'>SEL SENSOR</td>
+            </tr>
+            <tr>
+                <td><canvas id='eximu_chart1'></canvas></td>            
+                <td><canvas id='eximu_chart2'></canvas></td>
+            </tr>
+        </table>
+    </div>   
+    <div id='dt_overlay' >
+        <table style='table-layout:fixed;' width='100%' height='200px'>
+            <tr>
+                <td width='50%' style='padding:4px; background-color:#102650;'>DT/FT (ms)</td>            
+                <td width='50%' style='padding:4px; background-color:#102650;'>RDT/RFT (ms)</td>
+            </tr>
+            <tr>
+                <td><canvas id='dt_chart1'></canvas></td>            
+                <td><canvas id='dt_chart2'></canvas></td>
+            </tr>
+        </table>
+    </div>  
+    <div id='rm_cam_view' >
+        <table style='table-layout:fixed;' width='100%' height='100%'>
+            <tr>
+                <td width='100%' onclick='show_cam_view()'><img id='rm_cam_img' src='' crossorigin alt='CAM_IMG_0' ></td>                                              
+            </tr>
+        </table>
+    </div>   
+    <div id='rm_speed_view' onclick='show_speed_view()'>
+        <table style='table-layout:fixed; text-align:center;' width='100%' height='100%'>
+            <tr>
+                <td width='100%' style='text-align:center;'>
+                    <table style="text-align:center; border: 1px;" width="100%">
+                        <tr>
+                            <td id='rm_SPDVIEW_SPD' class="btmenu8" width="65%" style="text-align: right;" valign='bottom' >30.0</td><td class="btmenu9" valign='bottom' style="text-align: left;">&nbsp;km/h</td>
+                        </tr>
+                        <tr>
+                            <td id='rm_SPDVIEW_KM1' class="btmenu10" style="text-align: right;" valign='bottom' >0.0</td><td class="btmenu11" valign='bottom' style="text-align: left;">&nbsp;&nbsp;km (logging)</td>
+                        </tr>
+                        <tr>
+                            <td id='rm_SPDVIEW_KM2' class="btmenu10" style="text-align: right;" valign='bottom' >0.0</td><td class="btmenu11" valign='bottom' style="text-align: left;">&nbsp;&nbsp;km (last)</td>
+                        </tr>
+                    </table>
+                </td>                                              
+            </tr>
+        </table>
+    </div>   
+</body></html>

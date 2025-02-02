@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+   <html>
+   <head>   
+   <title>SYNEREX_WEB_ADMIN_NC</title>
+   <style>
+      body { background-color: #ffffff; font-family: Arial, Helvetica, Sans-Serif; font-size: 12px; Color: #000088; }
+      table, td {  border: 1px solid gray;  border-collapse: collapse; background-color: #e4eff7;}      
+      td:nth-child(1) {  font-weight: bold; text-align: center; }
+      td:nth-child(2) {  font-weight: bold; text-align: center; }
+      td { padding: 2px; }
+      td.title1 {text-align: center; background-color: #344452; color: #e4eff7; font-size:16px;}
+      td.head1 {text-align: center; background-color:#b4c6d1; padding: 8px;}
+      input { text-align: center; }
+      input[type=text] { outline: none; border: 1px solid #555; background-color:#e4eff7; width: 200px;}
+      input[type=number] { outline: none; border: 1px solid #555; background-color:#e4eff7; width: 200px;}
+      input[type=button] { font-weight:bold;}
+      select {background-color:#e4eff7; width: 200px; text-align:center;}
+      select.imu {background-color:#e4eff7; width: 100px; text-align:center;}
+      input.ip_type {outline: none; border: 1px solid #555; background-color:#e4eff7; width: 40px;}
+      input.xyz_type {outline: none; border: 1px solid #555; background-color:#e4eff7; width: 60px;}
+   </style>
+   <script>
+    function retry_webadmin() { fire_command(4);    } 
+    function fire_command(cmd_id) {  var strMessage = 'command,';  strMessage += (String(cmd_id) + ','); window.chrome.webview.postMessage(strMessage); }
+   </script>
+   </head>
+   <body>
+    <table style='width: 700px; margin: auto; text-align: left;'>  
+      <tr>
+          <td style='width:100%%; text-align: center; background-color: #344452; color: #e4eff7; font-size: 36px; cursor:pointer;'><b>XRP-2000 CONFIG SETTING</b></td> 
+      </tr>  
+      <tr>
+        <td class='head1' style='width:100%%; height:100px; text-align: center; padding:6px; font-size: 20px;' ><b>%s</b></td>       
+      </tr>   
+      <tr>
+        <td class='head1' style='width:100%%; height:24px; text-align: center; padding:6px; font-size: 20px;' ><input type='button' onclick='retry_webadmin();' value='Retry WebAdmin' style='font-size:14px; font-weight:bold;'></td>       
+      </tr> 
+    </table>       
+   </body>
+   </html>

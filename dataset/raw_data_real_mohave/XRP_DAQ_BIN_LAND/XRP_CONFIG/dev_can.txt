@@ -1,0 +1,15 @@
+can_port_enabled=0
+can_port_handle=0
+can_baud_rate=500000
+can[0]_enabled=0
+can[0]_dev_id=0
+can[0]_base_id=1280
+can[1]_enabled=0
+can[1]_dev_id=0
+can[1]_base_id=1330
+can[2]_enabled=0
+can[2]_dev_id=0
+can[2]_base_id=1380
+can[3]_enabled=0
+can[3]_dev_id=0
+can[3]_base_id=1430

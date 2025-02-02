@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+   <html>
+   <head>   
+   <title>SYNEREX_WEB_ADMIN</title>
+   <style>
+      body { background-color: #ffffff; font-family: Arial, Helvetica, Sans-Serif; font-size: 12px; Color: #000088; }
+      table, td {  border: 1px solid gray;  border-collapse: collapse; background-color: #e4eff7;}      
+      td:nth-child(1) {  font-weight: bold; text-align: center; }
+      td:nth-child(2) {  font-weight: bold; text-align: center; }
+      td { padding: 2px; }
+      td.title1 {text-align: center; background-color: #344452; color: #e4eff7; font-size:16px;}
+      td.head1 {text-align: center; background-color:#b4c6d1; padding: 8px;}
+      input { text-align: center; }
+      input[type=text] { outline: none; border: 1px solid #555; background-color:#e4eff7; width: 200px;}
+      input[type=number] { outline: none; border: 1px solid #555; background-color:#e4eff7; width: 200px;}
+      input[type=button] { font-weight:bold;}
+      select {background-color:#e4eff7; width: 200px; text-align:center;}
+      select.imu {background-color:#e4eff7; width: 100px; text-align:center;}
+      input.ip_type {outline: none; border: 1px solid #555; background-color:#e4eff7; width: 40px;}
+      input.xyz_type {outline: none; border: 1px solid #555; background-color:#e4eff7; width: 60px;}
+   </style>
+   <script>
+    var onload_timer_delay = %d;
+    function onload_handler() { ; /* if(onload_timer_delay > 0) { setTimer(reload_contents_only, onload_timer_delay); alert('setTimer');}  */ } 
+    function submit_formdata()      { post_form_message();}     
+    function reload_from_webadmin() { fire_command(1);    } 
+    function reload_from_portenta() { fire_command(2);    }
+    function exit_config()          { fire_command(3);    } 
+    function reset_board(bsel) { document.form1.COMMAND_REBOOT_BOARD.value=bsel; if(check_boot_options(bsel)) post_form_message(); }
+    function check_boot_options(bsel) { if(bsel == 1 || bsel == 4) { var str = 'Main Board Rebooting with Following Options - SD_SET_DEF (' + document.form1.CFG_BOOT_SD_SET_DEF.value + ') - EP_SET_DEF (' + document.form1.CFG_BOOT_EP_SET_DEF.value + ') - UBX0_SET_DEF (' + document.form1.CFG_BOOT_UBX0_SET_DEF.value + ') - UBX1_SET_DEF (' + document.form1.CFG_BOOT_UBX1_SET_DEF.value + ') - EBI_SET_DEF (' + document.form1.CFG_BOOT_EBI_SET_DEF.value + ') - EBI_SET_FCT (' + document.form1.CFG_BOOT_EBI_SET_FCT.value + ')'; return confirm(str);  } else if(bsel == 2) { return confirm('Are you sure to Reset In-Board?'); } else if(bsel == 3) { return confirm('Are you sure to Reset Out-Board?'); } else return false;  }   
+    function set_bg_white(obj) { obj.style.backgroundColor='#faf9d4'; }    
+    function fire_command(cmd_id) {  var strMessage = 'command,';  strMessage += (String(cmd_id) + ','); window.chrome.webview.postMessage(strMessage); }
+    function set_wait_cursor() { document.body.style.cursor = 'wait'; }
+    function set_default_cursor() { document.body.style.cursor = 'default'; }
+    function post_form_message()
+    {         
+      document.form1.COMMAND_RELOAD_CFG_ON.value = 1;          
+      var strMessage = 'form,';
+      strMessage += ('CFG_BOOT_SD_SET_DEF' + ',' + String(document.form1.CFG_BOOT_SD_SET_DEF.value) + ',');
+      strMessage += ('CFG_BOOT_EP_SET_DEF' + ',' + String(document.form1.CFG_BOOT_EP_SET_DEF.value) + ',');
+      strMessage += ('CFG_BOOT_UBX0_SET_DEF' + ',' + String(document.form1.CFG_BOOT_UBX0_SET_DEF.value) + ',');
+      strMessage += ('CFG_BOOT_UBX1_SET_DEF' + ',' + String(document.form1.CFG_BOOT_UBX1_SET_DEF.value) + ',');
+      strMessage += ('CFG_BOOT_EBI_SET_DEF' + ',' + String(document.form1.CFG_BOOT_EBI_SET_DEF.value) + ',');
+      strMessage += ('CFG_BOOT_EBI_SET_FCT' + ',' + String(document.form1.CFG_BOOT_EBI_SET_FCT.value) + ',');
+      strMessage += ('CFG_BOOT_EXI_SET_DEF' + ',' + String(document.form1.CFG_BOOT_EXI_SET_DEF.value) + ',');
+      strMessage += ('CFG_BOOT_EXI_SET_FCT' + ',' + String(document.form1.CFG_BOOT_EXI_SET_FCT.value) + ',');
+    /*<!-- WEB ADMIN ------------------------------------------------------------>*/
+      strMessage += ('CFG_WEB_ADMIN_ID' + ',' + String(document.form1.CFG_WEB_ADMIN_ID.value) + ',');
+      strMessage += ('CFG_WEB_ADMIN_PWD' + ',' + String(document.form1.CFG_WEB_ADMIN_PWD.value) + ',');
+      strMessage += ('CFG_WEB_ADMIN_KEY' + ',' + String(document.form1.CFG_WEB_ADMIN_KEY.value) + ',');      
+    /*<!-- OUTPUT SETTING ------------------------------------------------------------>*/
+      strMessage += ('CFG_OUTMSG_GNSS_STATE' + ',' + String(document.form1.CFG_OUTMSG_GNSS_STATE.value) + ',');
+      strMessage += ('CFG_OUTMSG_GNSS_RAW' + ',' + String(document.form1.CFG_OUTMSG_GNSS_RAW.value) + ',');
+      strMessage += ('CFG_OUTMSG_IMU_ATT' + ',' + String(document.form1.CFG_OUTMSG_IMU_ATT.value) + ',');
+      strMessage += ('CFG_OUTMSG_IMU_RAW0' + ',' + String(document.form1.CFG_OUTMSG_IMU_RAW0.value) + ',');
+      strMessage += ('CFG_OUTMSG_IMU_RAW1' + ',' + String(document.form1.CFG_OUTMSG_IMU_RAW1.value) + ',');
+      strMessage += ('CFG_OUTMSG_SOL_GT' + ',' + String(document.form1.CFG_OUTMSG_SOL_GT.value) + ',');      
+    /*<!-- EBIMU SETTING ------------------------------------------------------------>*/
+      strMessage += ('EBI_CFG_OUT_RATE' + ',' + String(document.form1.EBI_CFG_OUT_RATE.value) + ',');
+      strMessage += ('EBI_CFG_GYR_SENS' + ',' + String(document.form1.EBI_CFG_GYR_SENS.value) + ',');
+      strMessage += ('EBI_CFG_GYR_LPFA' + ',' + String(document.form1.EBI_CFG_GYR_LPFA.value) + ',');
+      strMessage += ('EBI_CFG_ENAB_AVC' + ',' + String(document.form1.EBI_CFG_ENAB_AVC.value) + ',');
+      strMessage += ('EBI_CFG_ENAB_AGC' + ',' + String(document.form1.EBI_CFG_ENAB_AGC.value) + ',');
+      strMessage += ('EBI_CFG_GYR_CALB' + ',' + String(document.form1.EBI_CFG_GYR_CALB.value) + ',');
+      strMessage += ('EBI_INIT_RX_DEGx100' + ',' + String(document.form1.EBI_INIT_RX_DEGx100.value) + ',');
+      strMessage += ('EBI_INIT_RY_DEGx100' + ',' + String(document.form1.EBI_INIT_RY_DEGx100.value) + ',');      
+      strMessage += ('CFG_PRM_EBI_STEER_GAIN' + ',' + String(document.form1.CFG_PRM_EBI_STEER_GAIN.value) + ',');
+      strMessage += ('EBI_CFG_YAW_RATE_SRC' + ',' + String(document.form1.EBI_CFG_YAW_RATE_SRC.value) + ',');
+      strMessage += ('EBI_CFG_YAW_OFFSET_DEGx10' + ',' + String(document.form1.EBI_CFG_YAW_OFFSET_DEGx10.value) + ',');    
+    /*<!-- SYSTEM ------------------------------------------------------------>*/
+      strMessage += ('CFG_SYS_SIMULATION_MODE' + ',' + String(document.form1.CFG_SYS_SIMULATION_MODE.value) + ',');  
+      strMessage += ('CFG_SYS_ID' + ',' + String(document.form1.CFG_SYS_ID.value) + ',');
+      strMessage += ('CFG_SYS_DT_MSx10' + ',' + String(document.form1.CFG_SYS_DT_MSx10.value) + ',');
+      strMessage += ('CFG_SYS_WIFI_DT' + ',' + String(document.form1.CFG_SYS_WIFI_DT.value) + ',');
+      strMessage += ('CFG_SYS_BT_DT' + ',' + String(document.form1.CFG_SYS_BT_DT.value) + ',');
+      strMessage += ('CFG_SYS_CAN_DT' + ',' + String(document.form1.CFG_SYS_CAN_DT.value) + ',');
+      strMessage += ('CFG_SYS_RS232_DT' + ',' + String(document.form1.CFG_SYS_RS232_DT.value) + ',');
+      strMessage += ('CFG_SYS_WEBADMIN_DT' + ',' + String(document.form1.CFG_SYS_WEBADMIN_DT.value) + ',');
+      strMessage += ('CFG_SYS_ETH_UC_ON' + ',' + String(document.form1.CFG_SYS_ETH_UC_ON.value) + ',');
+      strMessage += ('CFG_SYS_BT_NMEA' + ',' + String(document.form1.CFG_SYS_BT_NMEA.value) + ',');
+      strMessage += ('CFG_SYS_WIFI_UC_ON' + ',' + String(document.form1.CFG_SYS_WIFI_UC_ON.value) + ',');
+      strMessage += ('CFG_SYS_RS232_NMEA' + ',' + String(document.form1.CFG_SYS_RS232_NMEA.value) + ',');
+      strMessage += ('CFG_SYS_BT_ON' + ',' + String(document.form1.CFG_SYS_BT_ON.value) + ',');
+      strMessage += ('CFG_SYS_CAN_ON' + ',' + String(document.form1.CFG_SYS_CAN_ON.value) + ',');
+      strMessage += ('CFG_SYS_RS232_ON' + ',' + String(document.form1.CFG_SYS_RS232_ON.value) + ',');
+      strMessage += ('CFG_SYS_ADIS_ON' + ',' + String(document.form1.CFG_SYS_ADIS_ON.value) + ',');
+      strMessage += ('CFG_SYS_OBD_ON' + ',' + String(document.form1.CFG_SYS_OBD_ON.value) + ',');
+      strMessage += ('CFG_SYS_NTRIP_ON' + ',' + String(document.form1.CFG_SYS_NTRIP_ON.value) + ',');
+      strMessage += ('CFG_SYS_EBIMU_ON' + ',' + String(document.form1.CFG_SYS_EBIMU_ON.value) + ',');
+      strMessage += ('CFG_SYS_EXIMU_ON' + ',' + String(document.form1.CFG_SYS_EXIMU_ON.value) + ',');
+      strMessage += ('CFG_SYS_UBX1_ON' + ',' + String(document.form1.CFG_SYS_UBX1_ON.value) + ',');
+      strMessage += ('CFG_SYS_UBX2_ON' + ',' + String(document.form1.CFG_SYS_UBX2_ON.value) + ',');
+      strMessage += ('CFG_SYS_NTRIP_LTE' + ',' + String(document.form1.CFG_SYS_NTRIP_LTE.value) + ',');
+      strMessage += ('CFG_SYS_UBX_REVERSED' + ',' + String(document.form1.CFG_SYS_UBX_REVERSED.value) + ',');
+      strMessage += ('CFG_RS232_BAUDRATE' + ',' + String(document.form1.CFG_RS232_BAUDRATE.value) + ',');
+      strMessage += ('CFG_RS485_BAUDRATE' + ',' + String(document.form1.CFG_RS485_BAUDRATE.value) + ',');
+      strMessage += ('CFG_BTSRL_NAME' + ',' + String(document.form1.CFG_BTSRL_NAME.value) + ',');
+      strMessage += ('CFG_CAN_BAUDRATE' + ',' + String(document.form1.CFG_CAN_BAUDRATE.value) + ',');
+      strMessage += ('CFG_CAN_BASEID' + ',' + String(document.form1.CFG_CAN_BASEID.value) + ',');
+    /*<!-- VEHICLE SETTING ------------------------------------------------------------> */  
+      strMessage += ('CFG_CARSPEED_SRC' + ',' + String(document.form1.CFG_CARSPEED_SRC.value) + ',');
+      strMessage += ('CFG_OBD_BT_NAME' + ',' + String(document.form1.CFG_OBD_BT_NAME.value) + ',');
+      strMessage += ('CFG_SYS_CARCAN_ON' + ',' + String(document.form1.CFG_SYS_CARCAN_ON.value) + ',');
+      strMessage += ('CFG_CARCAN_BAUDRATE' + ',' + String(document.form1.CFG_CARCAN_BAUDRATE.value) + ',');
+      strMessage += ('CFG_PRM_OBD_SPEED_GAIN' + ',' + String(document.form1.CFG_PRM_OBD_SPEED_GAIN.value) + ',');
+      strMessage += ('CFG_CARSPEED_TYPE' + ',' + String(document.form1.CFG_CARSPEED_TYPE.value) + ',');
+      strMessage += ('CFG_PRM_CAR_FWHL_FROM_UBX0' + ',' + String(document.form1.CFG_PRM_CAR_FWHL_FROM_UBX0.value) + ',');
+      strMessage += ('CFG_PRM_CAR_RWHL_FROM_UBX0' + ',' + String(document.form1.CFG_PRM_CAR_RWHL_FROM_UBX0.value) + ',');
+      strMessage += ('CFG_PRM_CAR_WHEEL_BASE' + ',' + String(document.form1.CFG_PRM_CAR_WHEEL_BASE.value) + ',');
+      strMessage += ('CFG_PRM_CAR_TRACK_WIDTH' + ',' + String(document.form1.CFG_PRM_CAR_TRACK_WIDTH.value) + ',');
+      strMessage += ('CFG_SYS_DR_ANG_SRC' + ',' + String(document.form1.CFG_SYS_DR_ANG_SRC.value) + ',');
+      //strMessage += ('CFG_DR_EST_TYPE' + ',' + String(document.form1.CFG_DR_EST_TYPE.value) + ',');
+      strMessage += ('CFG_SYS_SPEED_CAL_MODE' + ',' + String(document.form1.CFG_SYS_SPEED_CAL_MODE.value) + ',');
+      strMessage += ('CFG_SYS_SPEED_GAIN' + ',' + String(document.form1.CFG_SYS_SPEED_GAIN.value) + ',');
+    /*<!-- GNSS SETTING ------------------------------------------------------------>*/
+      strMessage += ('CFG_SOL_TYPE_POLICY' + ',' + String(document.form1.CFG_SOL_TYPE_POLICY.value) + ',');
+      strMessage += ('CFG_SOL_VALID_HACC_RTKx100' + ',' + String(document.form1.CFG_SOL_VALID_HACC_RTKx100.value) + ',');
+      strMessage += ('CFG_SOL_VALID_HACC_DGNx100' + ',' + String(document.form1.CFG_SOL_VALID_HACC_DGNx100.value) + ',');
+      strMessage += ('CFG_SOL_HEAD_SPD_MS' + ',' + String(document.form1.CFG_SOL_HEAD_SPD_MS.value) + ',');
+      strMessage += ('CFG_PRM_GGA_INTIME_MS' + ',' + String(document.form1.CFG_PRM_GGA_INTIME_MS.value) + ',');
+      strMessage += ('CFG_PRM_GGA_INTIME_CNT' + ',' + String(document.form1.CFG_PRM_GGA_INTIME_CNT.value) + ',');
+      strMessage += ('CFG_SYS_SOL_QOS_TYPE' + ',' + String(document.form1.CFG_SYS_SOL_QOS_TYPE.value) + ',');
+      strMessage += ('SOL_EXTPL_ENABLED' + ',' + String(document.form1.SOL_EXTPL_ENABLED.value) + ',');
+      strMessage += ('SOL_EXTPL_PSTEP' + ',' + String(document.form1.SOL_EXTPL_PSTEP.value) + ',');      
+      strMessage += ('SOL_SMTH_SOLCHANGE_MSx01' + ',' + String(document.form1.SOL_SMTH_SOLCHANGE_MSx01.value) + ',');
+      strMessage += ('SOL_SMTH_LOCATION_ALPx100' + ',' + String(document.form1.SOL_SMTH_LOCATION_ALPx100.value) + ',');
+      strMessage += ('SOL_SMTH_HEADING_ALPx100' + ',' + String(document.form1.SOL_SMTH_HEADING_ALPx100.value) + ',');
+      strMessage += ('CFG_PRM_INIT_LAT' + ',' + String(document.form1.CFG_PRM_INIT_LAT.value) + ',');
+      strMessage += ('CFG_PRM_INIT_LON' + ',' + String(document.form1.CFG_PRM_INIT_LON.value) + ',');
+      strMessage += ('CFG_PRM_INIT_HEIGHT' + ',' + String(document.form1.CFG_PRM_INIT_HEIGHT.value) + ',');
+      strMessage += ('CFG_PRM_INIT_HEAD_DEG' + ',' + String(document.form1.CFG_PRM_INIT_HEAD_DEG.value) + ',');
+      strMessage += ('CFG_PRM_HEADING_TNCW' + ',' + String(document.form1.CFG_PRM_HEADING_TNCW.value) + ',');
+      strMessage += ('CFG_NTRIP_AP_SSID' + ',' + String(document.form1.CFG_NTRIP_AP_SSID.value) + ',');
+      strMessage += ('CFG_NTRIP_AP_PWD' + ',' + String(document.form1.CFG_NTRIP_AP_PWD.value) + ',');
+      strMessage += ('CFG_NTRIP_HOST_IP_0' + ',' + String(document.form1.CFG_NTRIP_HOST_IP_0.value) + ',');
+      strMessage += ('CFG_NTRIP_HOST_IP_1' + ',' + String(document.form1.CFG_NTRIP_HOST_IP_1.value) + ',');
+      strMessage += ('CFG_NTRIP_HOST_IP_2' + ',' + String(document.form1.CFG_NTRIP_HOST_IP_2.value) + ',');
+      strMessage += ('CFG_NTRIP_HOST_IP_3' + ',' + String(document.form1.CFG_NTRIP_HOST_IP_3.value) + ',');
+      strMessage += ('CFG_NTRIP_HOST_PORT' + ',' + String(document.form1.CFG_NTRIP_HOST_PORT.value) + ',');
+      strMessage += ('CFG_NTRIP_USER' + ',' + String(document.form1.CFG_NTRIP_USER.value) + ',');
+      strMessage += ('CFG_NTRIP_PWD' + ',' + String(document.form1.CFG_NTRIP_PWD.value) + ',');
+      strMessage += ('CFG_NTRIP_MNTPNT' + ',' + String(document.form1.CFG_NTRIP_MNTPNT.value) + ',');
+    /*<!-- NETWORK SETTING ------------------------------------------------------------>*/
+      strMessage += ('CFG_ETH_LOCAL_IP_0' + ',' + String(document.form1.CFG_ETH_LOCAL_IP_0.value) + ',');
+      strMessage += ('CFG_ETH_LOCAL_IP_1' + ',' + String(document.form1.CFG_ETH_LOCAL_IP_1.value) + ',');
+      strMessage += ('CFG_ETH_LOCAL_IP_2' + ',' + String(document.form1.CFG_ETH_LOCAL_IP_2.value) + ',');
+      strMessage += ('CFG_ETH_LOCAL_IP_3' + ',' + String(document.form1.CFG_ETH_LOCAL_IP_3.value) + ',');
+      strMessage += ('CFG_ETH_LOCAL_PORT' + ',' + String(document.form1.CFG_ETH_LOCAL_PORT.value) + ',');
+      strMessage += ('CFG_ETH_GATE_IP_0' + ',' + String(document.form1.CFG_ETH_GATE_IP_0.value) + ',');
+      strMessage += ('CFG_ETH_GATE_IP_1' + ',' + String(document.form1.CFG_ETH_GATE_IP_1.value) + ',');
+      strMessage += ('CFG_ETH_GATE_IP_2' + ',' + String(document.form1.CFG_ETH_GATE_IP_2.value) + ',');
+      strMessage += ('CFG_ETH_GATE_IP_3' + ',' + String(document.form1.CFG_ETH_GATE_IP_3.value) + ',');
+      strMessage += ('CFG_ETH_SUBNET_IP_0' + ',' + String(document.form1.CFG_ETH_SUBNET_IP_0.value) + ',');
+      strMessage += ('CFG_ETH_SUBNET_IP_1' + ',' + String(document.form1.CFG_ETH_SUBNET_IP_1.value) + ',');
+      strMessage += ('CFG_ETH_SUBNET_IP_2' + ',' + String(document.form1.CFG_ETH_SUBNET_IP_2.value) + ',');
+      strMessage += ('CFG_ETH_SUBNET_IP_3' + ',' + String(document.form1.CFG_ETH_SUBNET_IP_3.value) + ',');
+      strMessage += ('CFG_WIFI_SSID' + ',' + String(document.form1.CFG_WIFI_SSID.value) + ',');
+      strMessage += ('CFG_WIFI_PWD' + ',' + String(document.form1.CFG_WIFI_PWD.value) + ',');
+      strMessage += ('CFG_WIFI_LOCAL_IP_0' + ',' + String(document.form1.CFG_WIFI_LOCAL_IP_0.value) + ',');
+      strMessage += ('CFG_WIFI_LOCAL_IP_1' + ',' + String(document.form1.CFG_WIFI_LOCAL_IP_1.value) + ',');
+      strMessage += ('CFG_WIFI_LOCAL_IP_2' + ',' + String(document.form1.CFG_WIFI_LOCAL_IP_2.value) + ',');
+      strMessage += ('CFG_WIFI_LOCAL_IP_3' + ',' + String(document.form1.CFG_WIFI_LOCAL_IP_3.value) + ',');
+      strMessage += ('CFG_WIFI_LOCAL_PORT' + ',' + String(document.form1.CFG_WIFI_LOCAL_PORT.value) + ',');
+      strMessage += ('CFG_WIFI_GATE_IP_0' + ',' + String(document.form1.CFG_WIFI_GATE_IP_0.value) + ',');
+      strMessage += ('CFG_WIFI_GATE_IP_1' + ',' + String(document.form1.CFG_WIFI_GATE_IP_1.value) + ',');
+      strMessage += ('CFG_WIFI_GATE_IP_2' + ',' + String(document.form1.CFG_WIFI_GATE_IP_2.value) + ',');
+      strMessage += ('CFG_WIFI_GATE_IP_3' + ',' + String(document.form1.CFG_WIFI_GATE_IP_3.value) + ',');
+      strMessage += ('CFG_WIFI_SUBNET_IP_0' + ',' + String(document.form1.CFG_WIFI_SUBNET_IP_0.value) + ',');
+      strMessage += ('CFG_WIFI_SUBNET_IP_1' + ',' + String(document.form1.CFG_WIFI_SUBNET_IP_1.value) + ',');
+      strMessage += ('CFG_WIFI_SUBNET_IP_2' + ',' + String(document.form1.CFG_WIFI_SUBNET_IP_2.value) + ',');
+      strMessage += ('CFG_WIFI_SUBNET_IP_3' + ',' + String(document.form1.CFG_WIFI_SUBNET_IP_3.value) + ',');
+      strMessage += ('COMMAND_REBOOT_BOARD' + ',' + String(document.form1.COMMAND_REBOOT_BOARD.value) + ',');
+      strMessage += ('COMMAND_RELOAD_CFG_ON' + ',' + String(document.form1.COMMAND_RELOAD_CFG_ON.value) + ',');
+      window.chrome.webview.postMessage(strMessage);
+    }
+   </script>
+   </head>
+   <body onload='onload_handler()'>
+   <form name='form1' action='/admin' method='post'>  
+    <table style='width: 700px; margin: auto; text-align: left;'>  
+    <tr>
+        <td colspan='7' style='width:100%%; text-align: center; background-color: #344452; color: #e4eff7; font-size: 36px; cursor:pointer;' onclick='reload_contents_only();'><b>XRP-2000 CONFIG SETTING</b></td> 
+    </tr>  
+      <tr>
+        <td class='head1' style='width:25%%; height:30px; text-align: center; padding:6px;' ><input type='button' value=' Save Web/Rom CFG ' style='width:160px; height:24px; font-size:14px; ' onclick='submit_formdata()'></td>       
+        <td class='head1' style='width:25%%; height:30px; text-align: center; padding:6px;' ><input type='button' value=' Load Web CFG '     style='width:160px; height:24px; font-size:14px; ' onclick='reload_from_webadmin()'></td> 
+        <td class='head1' style='width:25%%; height:30px; text-align: center; padding:6px;' ><input type='button' value=' Load Rom CFG '     style='width:160px; height:24px; font-size:14px; ' onclick='reload_from_portenta()'></td>       
+        <td class='head1' style='width:25%%; height:30px; text-align: center; padding:6px;' ><input type='button' value=' EXIT '             style='width:160px; height:24px; font-size:14px; ' onclick='exit_config()'></td>    
+      </tr> 
+      <tr>
+        <td class='head1' style='width:25%%; height:30px; text-align: center; padding:6px;' ><input type='button' value=' Reset MainBoard '  style='width:160px; height:24px; font-size:14px; ' onclick='reset_board(1)'></td>       
+        <td class='head1' style='width:25%%; height:30px; text-align: center; padding:6px;' ><input type='button' value=' Reset InBoard '    style='width:160px; height:24px; font-size:14px; ' onclick='reset_board(2)'></td>       
+        <td class='head1' style='width:25%%; height:30px; text-align: center; padding:6px;' ><input type='button' value=' Reset OutBoard '   style='width:160px; height:24px; font-size:14px; ' onclick='reset_board(3)'></td>       
+        <td class='head1' style='width:25%%; height:30px; text-align: center; padding:6px;' ><input type='button' value=' Reset ALL '        style='width:160px; height:24px; font-size:14px; ' onclick='reset_board(4)'></td>       
+      </tr> 
+      <tr>
+        <td class='head1' style='width:25%%; height:20px; text-align: center; padding:4px;' ><b>FACTORY DEFAULT</b></td>       
+        <td colspan='4' style='width:75%%; height:20px; text-align: center; padding:4px;' >
+            <table width='100%%'>
+              <tr>
+                <td style='width:25%%; text-align: center; '><input type='hidden' name='CFG_BOOT_SD_SET_DEF' value='0'><label><input type='checkbox' onclick='javascript:document.form1.CFG_BOOT_SD_SET_DEF.value=(this.checked ? 1 : 0);'>&nbsp;SD_SET_DEF</label></td>
+                <td style='width:25%%; text-align: center; '><input type='hidden' name='CFG_BOOT_EP_SET_DEF' value='0'><label><input type='checkbox' onclick='javascript:document.form1.CFG_BOOT_EP_SET_DEF.value=(this.checked ? 1 : 0);'>&nbsp;EP_SET_DEF</label></td>
+                <td style='width:25%%; text-align: center; '><input type='hidden' name='CFG_BOOT_UBX0_SET_DEF' value='0'><label><input type='checkbox' onclick='javascript:document.form1.CFG_BOOT_UBX0_SET_DEF.value=(this.checked ? 1 : 0);'>&nbsp;UBX0_SET_DEF</label></td>
+                <td style='width:25%%; text-align: center; '><input type='hidden' name='CFG_BOOT_UBX1_SET_DEF' value='0'><label><input type='checkbox' onclick='javascript:document.form1.CFG_BOOT_UBX1_SET_DEF.value=(this.checked ? 1 : 0);'>&nbsp;UBX1_SET_DEF</label></td>
+              </tr>
+              <tr>
+                <td style='width:25%%; text-align: center; '><input type='hidden' name='CFG_BOOT_EBI_SET_DEF' value='0'><label><input type='checkbox' onclick='javascript:document.form1.CFG_BOOT_EBI_SET_DEF.value=(this.checked ? 1 : 0);'>&nbsp;EBI_SET_DEF</label></td>
+                <td style='width:25%%; text-align: center; '><input type='hidden' name='CFG_BOOT_EBI_SET_FCT' value='0'><label><input type='checkbox' onclick='javascript:document.form1.CFG_BOOT_EBI_SET_FCT.value=(this.checked ? 1 : 0);'>&nbsp;EBI_SET_FCT</label></td>
+                <td style='width:25%%; text-align: center; '><input type='hidden' name='CFG_BOOT_EXI_SET_DEF' value='0'><label><input type='checkbox' onclick='javascript:document.form1.CFG_BOOT_EXI_SET_DEF.value=(this.checked ? 1 : 0);'>&nbsp;EXI_SET_DEF</label></td>
+                <td style='width:25%%; text-align: center; '><input type='hidden' name='CFG_BOOT_EXI_SET_FCT' value='0'><label><input type='checkbox' onclick='javascript:document.form1.CFG_BOOT_EXI_SET_FCT.value=(this.checked ? 1 : 0);'>&nbsp;EXI_SET_FCT</label></td>
+              </tr>
+            </table>
+        </td>       
+      </tr> 
+    </table><br> 
+    <!-- WEB ADMIN ------------------------------------------------------------>
+    <table style='width: 700px; margin: auto; text-align: left;'>  
+      <tr>
+        <td class='title1' colspan=3><b>WEB ADMIN</b></td>    
+      </tr> 
+      <tr>
+        <td style='width: 160px;' class='head1'><b>Name</b></td>
+        <td style='width: 200px;' class='head1'><b>Value</b></td>
+        <td style='width: 340px;' class='head1'><b>Description</b></td>
+      </tr>
+      <tr>  
+        <td>WEB_ADMIN_ID</td>
+        <td><input type='text' name='CFG_WEB_ADMIN_ID' value='%s' maxlength=5 onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;Web config admin id (max 5 char)</td>
+      </tr>
+      <tr>
+        <td>WEB_ADMIN_PWD</td>
+        <td><input type='text' name='CFG_WEB_ADMIN_PWD' value='%s' maxlength=7 onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;Web config admin password (max 7 char)</td>
+      </tr>
+      <tr>
+        <td>WEB_ADMIN_KEY</td>
+        <td><input type='text' name='CFG_WEB_ADMIN_KEY' value='%s' maxlength=39 onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;Web GoogleMap Key (max 39 char)</td>
+      </tr>
+      <tr>
+        <td style='text-align: center; background-color:#b4c6d1;' colspan=3><input type='button' onclick='post_form_message();' value='Submit & Save' style='font-size:14px; font-weight:bold;'>&nbsp;&nbsp;&nbsp;&nbsp;<input type='reset' value='Reset Values' style='font-size:14px;'></td>    
+      </tr> 
+    </table><br> 
+    <!-- OUTPUT SETTING ------------------------------------------------------------>
+    <table style='width: 700px; margin: auto; text-align: left;'>  
+      <tr>
+        <td class='title1' colspan=3><b>OUTPUT SETTING</b></td>    
+      </tr> 
+      <tr>
+        <td style='width: 160px;' class='head1'><b>Name</b></td>
+        <td style='width: 200px;' class='head1'><b>Value</b></td>
+        <td style='width: 340px;' class='head1'><b>Description</b></td>
+      </tr>
+      <tr>  
+        <td>CFG_OUTMSG_GNSS_STATE</td>
+        <td style="text-align:left"><input type='hidden' name='CFG_OUTMSG_GNSS_STATE' value='%d'>&nbsp;<label><input type='checkbox' %s onclick='javascript:document.form1.CFG_OUTMSG_GNSS_STATE.value=(this.checked ? 1 : 0);'>&nbsp;GNSS_STATE</label></td>
+        <td>&nbsp;</td>
+      </tr>      
+      <tr>  
+        <td>CFG_OUTMSG_GNSS_RAW</td>
+        <td style="text-align:left"><input type='hidden' name='CFG_OUTMSG_GNSS_RAW' value='%d'>&nbsp;<label><input type='checkbox' %s onclick='javascript:document.form1.CFG_OUTMSG_GNSS_RAW.value=(this.checked ? 1 : 0);'>&nbsp;GNSS_RAW</label></td>
+        <td>&nbsp;</td>
+      </tr>      
+      <tr>  
+        <td>CFG_OUTMSG_IMU_ATT</td>
+        <td style="text-align:left"><input type='hidden' name='CFG_OUTMSG_IMU_ATT' value='%d'>&nbsp;<label><input type='checkbox' %s onclick='javascript:document.form1.CFG_OUTMSG_IMU_ATT.value=(this.checked ? 1 : 0);'>&nbsp;IMU_ATTITUDE</label></td>
+        <td>&nbsp;</td>
+      </tr>    
+      <tr>  
+        <td>CFG_OUTMSG_IMU_RAW0</td>
+        <td style="text-align:left"><input type='hidden' name='CFG_OUTMSG_IMU_RAW0' value='%d'>&nbsp;<label><input type='checkbox' %s onclick='javascript:document.form1.CFG_OUTMSG_IMU_RAW0.value=(this.checked ? 1 : 0);'>&nbsp;IMU_RAW (0)</label></td>
+        <td>&nbsp;</td>
+      </tr>    
+      <tr>  
+        <td>CFG_OUTMSG_IMU_RAW1</td>
+        <td style="text-align:left"><input type='hidden' name='CFG_OUTMSG_IMU_RAW1' value='%d'>&nbsp;<label><input type='checkbox' %s onclick='javascript:document.form1.CFG_OUTMSG_IMU_RAW1.value=(this.checked ? 1 : 0);'>&nbsp;IMU_RAW (1)</label></td>
+        <td>&nbsp;</td>
+      </tr>    
+      <tr>  
+        <td>CFG_OUTMSG_SOL_GT</td>
+        <td style="text-align:left"><input type='hidden' name='CFG_OUTMSG_SOL_GT' value='%d'>&nbsp;<label><input type='checkbox' %s onclick='javascript:document.form1.CFG_OUTMSG_SOL_GT.value=(this.checked ? 1 : 0);'>&nbsp;SOL_GT</label></td>
+        <td>&nbsp;</td>
+      </tr> 
+      <tr>
+        <td style='text-align: center; background-color:#b4c6d1;' colspan=3><input type='button' onclick='post_form_message();' value='Submit & Save' style='font-size:14px; font-weight:bold;'>&nbsp;&nbsp;&nbsp;&nbsp;<input type='reset' value='Reset Values' style='font-size:14px;'></td>    
+      </tr>
+    </table>
+    <br>
+    <!-- EBIMU SETTING ------------------------------------------------------------>
+    <table style='width: 700px; margin: auto; text-align: left;'>  
+      <tr>
+        <td class='title1' colspan=3><b>EBIMU SETTING</b></td>    
+      </tr> 
+      <tr>
+        <td style='width: 160px;' class='head1'><b>Name</b></td>
+        <td style='width: 200px;' class='head1'><b>Value</b></td>
+        <td style='width: 340px;' class='head1'><b>Description</b></td>
+      </tr>
+      <tr>
+        <td>EBI_CFG_OUT_RATE</td>
+        <td><input type='number' name='EBI_CFG_OUT_RATE' value='%d' min=1 max=250 onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;DT(ms) (5ms=200Hz, 10ms=100Hz)</td>
+      </tr>  
+      <tr>
+        <td>EBI_CFG_GYR_SENS</td>
+        <td><input type='number' name='EBI_CFG_GYR_SENS' value='%d' min=1 max=5 onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;Gyro Sensitivity (1:125dps, 2:250 dps, 3:500 dps, 4:1000 dps, 5:2000 dps) (default:2)</td>
+      </tr>
+      <tr>
+        <td>EBI_CFG_GYR_LPFA</td>
+        <td><input type='number' name='EBI_CFG_GYR_LPFA' value='%d' min=0 max=7 onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;Gyro LPF (0:12 Hz, 1:23Hz, 2:32Hz, 3:47Hz, 4:64Hz, 5:116Hz, 6:230Hz, 7:532Hz) (default:1)</td>
+      </tr>
+      <tr>
+        <td>EBI_CFG_ENAB_AVC</td>
+        <td><input type='number' name='EBI_CFG_ENAB_AVC' value='%d' min=0 max=1 onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;Active Vibration Cancellation (0=OFF, 1=ON)</td>
+      </tr>
+      <tr>
+        <td>EBI_CFG_ENAB_AGC</td>
+        <td><input type='number' name='EBI_CFG_ENAB_AGC' value='%d' min=0 max=1 onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;Auto Gyroscope Calibration (0=OFF, 1=ON)</td>
+      </tr>
+      <tr>
+        <td>EBI_CFG_GYR_CALB</td>
+        <td><input type='hidden' name='EBI_CFG_GYR_CALB' value='0'><label><input type='checkbox' onclick='javascript:document.form1.EBI_CFG_GYR_CALB.value=(this.checked ? 1 : 0);'>&nbsp;DO_CAL</label>&nbsp;</td>
+        <td>&nbsp;Do Gyroscope Calibration Now</td>
+      </tr>
+      <tr>
+        <td>EBI_CFG_CAL_DONE</td>
+        <td><input type='number' name='EBI_CFG_CAL_DONE' value='%d' min=0 max=1 onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;Gyroscope Calibration Done</td>
+      </tr>
+      <tr>
+        <td>EBI_INIT_RX_DEGx100</td>
+        <td><input type='number' name='EBI_INIT_RX_DEGx100' value='%d' min=-32000 max=32000 onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;Initial RX deg (x100)</td>
+      </tr>
+      <tr>
+        <td>EBI_INIT_RY_DEGx100</td>
+        <td><input type='number' name='EBI_INIT_RY_DEGx100' value='%d' min=-32000 max=32000 onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;Initial RY deg (x100)</td>
+      </tr>
+      <tr>
+        <td>EBI_STEER_GAIN</td>
+        <td><input type='number' name='CFG_PRM_EBI_STEER_GAIN' value='%d' min=0 max=250 onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;Steer Angle Gain of EB-IMU (%%, 0~250)</td>
+      </tr>
+      <tr>
+        <td>EBI_YAW_RATE_SRC</td>
+        <td><select name='EBI_CFG_YAW_RATE_SRC' value='%d' onclick='javascript:set_bg_white(this);'>
+              <option value='0' %s> [0] (Local GZ ATT Calibrated)</option>
+              <option value='1' %s> [1] (Global GZ)</option>
+              <option value='2' %s> [2] (Local GZ)</option>              
+              <option value='3' %s> [3] (TEST MODE)</option>              
+        </select>
+        </td>
+        <td>&nbsp;EBI YawRate Source (default:0)</td>
+      </tr>
+      <tr>
+        <td>EBI_YAW_OFFSET_DEGx10</td>
+        <td><input type='number' name='EBI_CFG_YAW_OFFSET_DEGx10' value='%d' min=-3600 max=3600 onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;Global Yaw Offset Value x10 (deg, -3600~3600)</td>
+      </tr>
+      <tr>
+        <td style='text-align: center; background-color:#b4c6d1;' colspan=3><input type='button' onclick='post_form_message();' value='Submit & Save' style='font-size:14px; font-weight:bold;'>&nbsp;&nbsp;&nbsp;&nbsp;<input type='reset' value='Reset Values' style='font-size:14px;'></td>    
+      </tr> 
+    </table><br>     
+    <!-- SYSTEM ------------------------------------------------------------>
+    <table style='width: 700px; margin: auto; text-align: left;'>  
+      <tr>
+        <td class='title1' colspan=3><b>SYSTEM CONFIG</b></td>    
+      </tr> 
+      <tr>
+        <td style='width: 160px' class='head1'><b>Name</b></td>
+        <td style='width: 200px' class='head1'><b>Value</b></td>
+        <td style='width: 340px' class='head1'><b>Description</b></td>
+      </tr>
+      <tr>  
+        <td>SYS_SIMULATION_MODE</td>
+        <td>
+          <input type='hidden' name='CFG_SYS_SIMULATION_MODE' value='%d'><label><input type='checkbox' %s onclick='javascript:document.form1.CFG_SYS_SIMULATION_MODE.value=(this.checked ? 1 : 0);'>&nbsp;SIMULATION_MODE</label>&nbsp;
+        </td>
+        <td>&nbsp;System Simulation Mode</td>
+      </tr>
+      <tr>  
+        <td>SYS_ID</td>
+        <td><input type='number' name='CFG_SYS_ID' value='%d' min=0 max=63 onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;System Device ID (0~63)</td>
+      </tr>
+      <tr>
+        <td>SYS_DT_MSx10</td>
+        <td><input type='number' name='CFG_SYS_DT_MSx10' value='%d' min=0 max=10000 onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;System Timer DTx10 (value 50 = dt 5 ms (=200 hz))</td>
+      </tr>
+      <tr>
+        <td>SYS_WIFI_DT</td>
+        <td><input type='number' name='CFG_SYS_WIFI_DT' value='%d' min=0 max=250 onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;WiFi Output DT (unit: ms)</td>
+      </tr>
+      <tr>
+        <td>SYS_BT_DT</td>
+        <td><input type='number' name='CFG_SYS_BT_DT' value='%d' min=0 max=250 onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;BlueTooth Output DT (unit: ms)</td>
+      </tr>
+      <tr>
+        <td>SYS_CAN_DT</td>
+        <td><input type='number' name='CFG_SYS_CAN_DT' value='%d' min=0 max=250 onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;CAN Output DT (unit: ms)</td>
+      </tr>
+      <tr>
+        <td>SYS_RS232_DT</td>
+        <td><input type='number' name='CFG_SYS_RS232_DT' value='%d' min=0 max=250 onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;RS232 Output DT (unit: ms)</td>
+      </tr>
+      <tr>
+        <td>SYS_WEBADMIN_DT</td>
+        <td><input type='number' name='CFG_SYS_WEBADMIN_DT' value='%d' min=0 max=250 onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;WebAdmin Refresh DT (unit: ms)</td>
+      </tr>
+      <tr>
+      <td>SYS_ETH_ON/SYS_WIFI_ON</td>
+        <td>
+          <input type='hidden' name='CFG_SYS_ETH_UC_ON' value='%d'><label><input type='checkbox' %s onclick='javascript:document.form1.CFG_SYS_ETH_UC_ON.value=(this.checked ? 1 : 0);'>&nbsp;ETH_ON</label>&nbsp;
+          <input type='hidden' name='CFG_SYS_WIFI_UC_ON' value='%d'><label><input type='checkbox' %s onclick='javascript:document.form1.CFG_SYS_WIFI_UC_ON.value=(this.checked ? 1 : 0);'>&nbsp;WIFI_ON</label>
+        </td>
+        <td>&nbsp;Enable Ethernet / WiFi Unicasting</td>
+      </tr>
+      <tr>
+        <td>SYS_RS232_ON</td>
+        <td>
+          <input type='hidden' name='CFG_SYS_RS232_ON' value='%d'><label><input type='checkbox' %s onclick='javascript:document.form1.CFG_SYS_RS232_ON.value=(this.checked ? 1 : 0);'>&nbsp;RS232_ON</label>&nbsp;
+          <input type='hidden' name='CFG_SYS_RS232_NMEA' value='%d'><label><input type='checkbox' %s onclick='javascript:document.form1.CFG_SYS_RS232_NMEA.value=(this.checked ? 1 : 0);'>&nbsp;RS232_NMEA</label>
+        </td>
+        <td>&nbsp;Enable RS232 Output (NMEA Output)</td>
+      </tr>
+      <tr>
+       <td>SYS_BTSRL_ON</td>
+        <td>
+          <input type='hidden' name='CFG_SYS_BT_ON' value='%d'><label><input type='checkbox' %s onclick='javascript:document.form1.CFG_SYS_BT_ON.value=(this.checked ? 1 : 0);'>&nbsp;BT_ON</label>&nbsp;
+          <input type='hidden' name='CFG_SYS_BT_NMEA' value='%d'><label><input type='checkbox' %s onclick='javascript:document.form1.CFG_SYS_BT_NMEA.value=(this.checked ? 1 : 0);'>&nbsp;BT_NMEA</label>
+        </td>
+        <td>&nbsp;Enable Bluetooth Output (NMEA Output)</td>
+      </tr>
+      <tr>
+        <td>SYS_CAN_ON/SYS_ADIS_ON</td>
+        <td>
+          <input type='hidden' name='CFG_SYS_CAN_ON' value='%d'><label><input type='checkbox' %s onclick='javascript:document.form1.CFG_SYS_CAN_ON.value=(this.checked ? 1 : 0);'>&nbsp;CAN_ON</label>&nbsp;
+          <input type='hidden' name='CFG_SYS_ADIS_ON' value='%d'><label><input type='checkbox' %s onclick='javascript:document.form1.CFG_SYS_ADIS_ON.value=(this.checked ? 1 : 0);'>&nbsp;ADIS_ON</label>&nbsp;
+        </td>
+        <td>&nbsp;Enable CAN Output / ADIS_IMU</td>
+      </tr>
+      <tr>
+        <td>SYS_OBD/NTRIP_ON</td>
+        <td>
+          <input type='hidden' name='CFG_SYS_OBD_ON' value='%d'><label><input type='checkbox' %s onclick='javascript:document.form1.CFG_SYS_OBD_ON.value=(this.checked ? 1 : 0);'>&nbsp;OBD_ON</label>&nbsp;
+          <input type='hidden' name='CFG_SYS_NTRIP_ON' value='%d'><label><input type='checkbox' %s onclick='javascript:document.form1.CFG_SYS_NTRIP_ON.value=(this.checked ? 1 : 0);'>&nbsp;NTRIP_ON</label>
+        </td>
+        <td>&nbsp;Enable OBD/NTRIP Input</td>
+      </tr>
+      <tr>
+        <td>SYS_EBIMU/EXIMU_ON</td>
+        <td>
+          <input type='hidden' name='CFG_SYS_EBIMU_ON' value='%d'><label><input type='checkbox' %s onclick='javascript:document.form1.CFG_SYS_EBIMU_ON.value=(this.checked ? 1 : 0);'>&nbsp;EBIMU_ON</label>&nbsp;
+          <input type='hidden' name='CFG_SYS_EXIMU_ON' value='%d'><label><input type='checkbox' %s onclick='javascript:document.form1.CFG_SYS_EXIMU_ON.value=(this.checked ? 1 : 0);'>&nbsp;EXIMU_ON</label>
+        </td>
+        <td>&nbsp;Enable EBIMU/EXIMU Input</td>
+      </tr>
+      <tr>
+        <td>SYS_UBX1/UBX2_ON</td>
+        <td>
+          <input type='hidden' name='CFG_SYS_UBX1_ON' value='%d'><label><input type='checkbox' %s onclick='javascript:document.form1.CFG_SYS_UBX1_ON.value=(this.checked ? 1 : 0);'>&nbsp;UBX1_ON</label>&nbsp;
+          <input type='hidden' name='CFG_SYS_UBX2_ON' value='%d'><label><input type='checkbox' %s onclick='javascript:document.form1.CFG_SYS_UBX2_ON.value=(this.checked ? 1 : 0);'>&nbsp;UBX2_ON</label>
+        </td>
+        <td>&nbsp;Enable UBX1/UBX2 Input</td>
+      </tr>
+      <tr>
+        <td>SYS_NTRIP_LTE</td>
+        <td>
+          <input type='hidden' name='CFG_SYS_NTRIP_LTE' value='%d'><label><input type='checkbox' %s onclick='javascript:document.form1.CFG_SYS_NTRIP_LTE.value=(this.checked ? 1 : 0);'>&nbsp;NTRIP using LTE</label>&nbsp;          
+        </td>
+        <td>&nbsp;Enable NTRIP Connection using LTE Modem</td>
+      </tr>
+      <tr>
+        <td>SYS_UBX_REVERSED</td>
+        <td>
+          <input type='hidden' name='CFG_SYS_UBX_REVERSED' value='%d'><label><input type='checkbox' %s onclick='javascript:document.form1.CFG_SYS_UBX_REVERSED.value=(this.checked ? 1 : 0);'>&nbsp;UBX_REVS</label>
+        </td>
+        <td>&nbsp;UBX1 and UBX2 are reversed (MainBoard's REBOOT required)</td>
+      </tr>  
+      <tr>
+        <td>RS232_OUT_BAUDRATE</td>
+        <td><select name='CFG_RS232_BAUDRATE' value='%d' onclick='javascript:set_bg_white(this);'>
+          <option value='9600'  %s> 9600 bps</option>
+          <option value='19200'  %s> 19200 bps</option>
+          <option value='38400'  %s> 38400 bps</option>
+          <option value='57600'  %s> 57600 bps</option>
+          <option value='115200' %s> 115200 bps</option>
+          <option value='230400' %s> 230400 bps</option>
+          <option value='460800' %s> 460800 bps</option>
+          <option value='921600' %s> 921600 bps</option>
+        </select></td>
+        <td>&nbsp;Baudrate of RS232 Output <b><u>(921600)</u></b></td>
+      </tr>
+      <tr>
+        <td>RS485_OUT_BAUDRATE</td>
+        <td><select name='CFG_RS485_BAUDRATE' value='%d' onclick='javascript:set_bg_white(this);'>
+          <option value='9600'  %s> 9600 bps</option>
+          <option value='19200'  %s> 19200 bps</option>
+          <option value='38400'  %s> 38400 bps</option>
+          <option value='57600'  %s> 57600 bps</option>
+          <option value='115200' %s> 115200 bps</option>
+          <option value='230400' %s> 230400 bps</option>
+          <option value='460800' %s> 460800 bps</option>
+          <option value='921600' %s> 921600 bps</option>
+        </select></td>
+        <td>&nbsp;Baudrate of RS485 Output <b><u>(921600)</u></b></td>
+      </tr>
+      <tr>  
+        <td>BTSRL_OUT_NAME</td>
+        <td><input type='text' name='CFG_BTSRL_NAME' value='%s' maxlength=11 onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;Bluetooth-Serial Output BT-Name(max 11 char)</td>
+      </tr>
+      <tr>
+        <td>CAN_OUT_BAUDRATE</td>
+        <td><select name='CFG_CAN_BAUDRATE' value='%d' onclick='javascript:set_bg_white(this);'>
+          <option value='100000'  %s> 100 Kbps</option>
+          <option value='125000'  %s> 125 Kbps</option>
+          <option value='250000'  %s> 250 Kbps</option>
+          <option value='500000'  %s> 500 Kbps</option>
+          <option value='800000'  %s> 800 Kbps</option>
+          <option value='1000000' %s> 1000 Kbps</option>
+        </select></td>
+        <td>&nbsp;Baudrate of CAN Output <b><u>(500k)</u></b></td>
+      </tr>
+      <tr>
+        <td>CAN_OUT_BASEID</td>
+        <td><input type='number' name='CFG_CAN_BASEID' value='%d' min=0 max=65000 onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;CAN Out BaseID (in dec, not hex)</td>
+      </tr>             
+      <tr>
+        <td style='text-align: center; background-color:#b4c6d1;' colspan=3><input type='button' onclick='post_form_message();' value='Submit & Save' style='font-size:14px; font-weight:bold;'>&nbsp;&nbsp;&nbsp;&nbsp;<input type='reset' value='Reset Values' style='font-size:14px;'></td>    
+      </tr> 
+    </table><br> 
+    <!-- VEHICLE SETTING ------------------------------------------------------------>    
+    <table style='width: 700px; margin: auto; text-align: left;'>  
+      <tr>
+        <td class='title1' colspan=3><b>VEHICLE SETTING</b></td>    
+      </tr> 
+      <tr>
+        <td style='width: 160px;' class='head1'><b>Name</b></td>
+        <td style='width: 200px;' class='head1'><b>Value</b></td>
+        <td style='width: 340px;' class='head1'><b>Description</b></td>
+      </tr>
+      <tr>
+        <td>CAR_SPEED_SRC</td>
+        <td><select name='CFG_CARSPEED_SRC' value='%d' onclick='javascript:set_bg_white(this);'>
+          <option value='0' %s>[0] OBD-II(Esp32)</option>
+          <option value='1' %s>[1] WheelTick(Portenta)</option>
+          <option value='2' %s>[2] WheelCounter(Portenta)</option>
+          <option value='3' %s>[3] CAR_CAN(Portenta)</option>
+          <option value='4' %s>[4] IMU NED(EBIMU)</option>
+          <option value='5' %s>[5] CAMERA(Realsense)</option>
+        </select></td>
+        <td>&nbsp;0:OBD-II(E), 1:WheelTick(P), 2:WheelCounter(P), <b><u>3:CARCAN(P)</u></b>, 4:IMU NED(EB), 5: CAMERA (R)</td>
+      </tr>
+      <tr>  
+        <td>OBD_BT_NAME</td>
+        <td><input type='text' name='CFG_OBD_BT_NAME' value='%s' maxlength=9 onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;Bluetooth OBD-II Name(max 9 char)</td>
+      </tr>
+      <tr>
+        <td>CAR_CAN_TYPE</td>
+        <td><select name='CFG_SYS_CARCAN_ON' value='%d' onclick='javascript:set_bg_white(this);'>
+          <option value='0' %s>[0] Diabled</option>
+          <option value='1' %s>[1] OBD-CAN (Synerex)</option>
+          <option value='2' %s>[2] CAR-CAN (CAN Gateway)</option>          
+        </select></td>
+        <td>&nbsp;Enable CAN Input (0:Diabled, <b><u>1:OBD-CAN (Synerex)</u></b>, 2:CAR-CAN(CAN Gateway))</td>
+      </tr>
+      <tr>
+        <td>OBD/CAR-CAN_BAUDRATE</td>
+        <td><select name='CFG_CARCAN_BAUDRATE' value='%d' onclick='javascript:set_bg_white(this);'>
+          <option value='100000'  %s> 100 Kbps</option>
+          <option value='125000'  %s> 125 Kbps</option>
+          <option value='250000'  %s> 250 Kbps</option>
+          <option value='500000'  %s> 500 Kbps</option>
+          <option value='800000'  %s> 800 Kbps</option>
+          <option value='1000000' %s> 1000 Kbps</option>
+        </select></td>
+        <td>&nbsp;Baudrate of OBD-CAN(Synerex) <b><u>(500k)</u></b> or CAR-CAN(CAN Gateway) <b><u>(500k)</u></b></td>
+      </tr>      
+      <tr>
+        <td>OBD_SPEED_GAIN</td>
+        <td><input type='number' name='CFG_PRM_OBD_SPEED_GAIN' value='%d' min=0 max=250 onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;Speed Gain of OBD_BT or OBD_CAN (%%, 0~250)</td>
+      </tr>
+      <tr>
+        <td>CAR_SPEED_TYPE</td>
+        <td><select name='CFG_CARSPEED_TYPE' value='%d' onclick='javascript:set_bg_white(this);'>
+          <option value='0' %s>[0] Center Axle</option>
+          <option value='1' %s>[1] Left Wheel</option>
+          <option value='2' %s>[2] Right Wheel</option>
+        </select></td>
+        <td>&nbsp;0:Center Axle, 1:Left Wheel, 2:Right Wheel</td>
+      </tr>
+      <tr>
+        <td>CAR_FWHL_FROM_UBX0</td>
+        <td><input type='text' name='CFG_PRM_CAR_FWHL_FROM_UBX0' value='%.2f' onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;[A] Front Wheel Distance from UBX0(= rear GPS pos) (m)</td>
+      </tr>
+      <tr>
+        <td>CAR_RWHL_FROM_UBX0</td>
+        <td><input type='text' name='CFG_PRM_CAR_RWHL_FROM_UBX0' value='%.2f' onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;[B] Rear Wheel Distance from UBX0(= rear GPS pos) (m)</td>
+      </tr>
+      <tr>
+        <td>CAR_WHEEL_BASE</td>
+        <td><input type='text' name='CFG_PRM_CAR_WHEEL_BASE' value='%.2f' onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;[C=A+B] Distance between front and rear wheel axles (m)</td>
+      </tr>
+      <tr>
+        <td>CAR_TRACK_WIDTH</td>
+        <td><input type='text' name='CFG_PRM_CAR_TRACK_WIDTH' value='%.2f' onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;Width between left and right wheels (m)</td>
+      </tr>
+      <tr>
+        <td>SYS_DR_ANGLE_SRC</td>
+        <td><select name='CFG_SYS_DR_ANG_SRC' value='%d' onclick='javascript:set_bg_white(this);'>
+              <option value='0' %s> [0] EB_IMU (sub:ADIS) </option>
+              <option value='1' %s> [1] ADIS_IMU (sub:EBI) </option>
+              <option value='2' %s> [2] EX_IMU (sub:EBI) </option>             
+              <option value='3' %s> [3] CAMERA (sub:EBI) </option>             
+        </select>
+        </td>
+        <td>&nbsp;Source of DeadReckoning Angle Estimation</td>
+      </tr>      
+      <tr>  
+        <td>SYS_SPEED_CAL_MODE</td>
+        <td><select name='CFG_SYS_SPEED_CAL_MODE' value='%d' onclick='javascript:set_bg_white(this);'>
+          <option value='0' %s> [0] [Status] None </option>
+          <option value='1' %s> [1] [Command] Do Cal Now </option>
+          <option value='2' %s> [2] [Status] Curr Caling </option>        
+          <option value='3' %s> [3] [Status] Cal Done </option>      
+        </select></td>
+        <td>&nbsp;Speed Cal Mode</td>
+      </tr>
+      <tr>
+        <td>SYS_SPEED_GAIN</td>
+        <td><input type='text' name='CFG_SYS_SPEED_GAIN' value='%.4f' onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;Speed Cal Gain</td>
+      </tr>
+      <tr>
+        <td style='text-align: center; background-color:#b4c6d1;' colspan=3><input type='button' onclick='post_form_message();' value='Submit & Save' style='font-size:14px; font-weight:bold;'>&nbsp;&nbsp;&nbsp;&nbsp;<input type='reset' value='Reset Values' style='font-size:14px;'></td>    
+      </tr> 
+    </table><br> 
+    <!-- GNSS SETTING ------------------------------------------------------------>
+    <table style='width: 700px; margin: auto; text-align: left;'>  
+      <tr>
+        <td class='title1' colspan=3><b>GNSS SETTING</b></td>    
+      </tr> 
+      <tr>
+        <td style='width: 160px;' class='head1'><b>Name</b></td>
+        <td style='width: 200px;' class='head1'><b>Value</b></td>
+        <td style='width: 340px;' class='head1'><b>Description</b></td>
+      </tr>
+      <tr>
+        <td>SOL_TYPE_POLICY</td>
+        <td><select name='CFG_SOL_TYPE_POLICY' value='%d' onclick='javascript:set_bg_white(this);'>
+          <option value='0' %s> [0] (Signal Counts) </option>
+          <option value='1' %s> [1] (Horizontal Accuracy) </option>          
+       </select></td>
+        <td>&nbsp;Solution Type Decision Strategy (0:Acceptable Signal Counts, 1:Acceptable Horizontal Accuracy)</td>
+      </tr>  
+      <tr>
+        <td>SOL_VALID_HACC_RTKx100</td>
+        <td><input type='number' name='CFG_SOL_VALID_HACC_RTKx100' value='%d' min=0 max=1000 onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;[GNSS] Acceptable HACC at RTK (default:5 = 0.05m)</td>
+      </tr> 
+      <tr>
+        <td>SOL_VALID_HACC_DGNx100</td>
+        <td><input type='number' name='CFG_SOL_VALID_HACC_DGNx100' value='%d' min=0 max=1000 onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;[GNSS] Acceptable HACC at DGNSS (default:5 = 0.05m)</td>
+      </tr> 
+      <tr>
+        <td>CFG_SOL_HEAD_SPD_MS</td>
+        <td><input type='number' name='CFG_SOL_HEAD_SPD_MS' value='%d' min=0 max=150 onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;[GNSS] Car speed (m/s) whether 'Kinematic heading' or 'GPS velocity heading' (default:10 m/s)</td>
+      </tr> 
+      <tr>
+        <td>GGA_IN_TIME_MS</td>
+        <td><input type='number' name='CFG_PRM_GGA_INTIME_MS' value='%d' min=0 max=5000 onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;[GNSS] UBX INTIME decision time (ms)</td>
+      </tr>  
+      <tr>
+        <td>GGA_INTIME_CNT</td>
+        <td><input type='number' name='CFG_PRM_GGA_INTIME_CNT' value='%d' min=0 max=250 onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;[GNSS] UBX INTIME decision counter</td>
+      </tr>
+      <tr>
+        <td>SOL_QOS_TYPE</td>
+        <td><select name='CFG_SYS_SOL_QOS_TYPE' value='%d' onclick='javascript:set_bg_white(this);'>
+          <option value='0' %s> [0] (Valid CNT x3) </option>
+          <option value='1' %s> [1] (Valid CNT x2) </option>
+          <option value='2' %s> [2] (Valid CNT x1) </option>
+          <option value='3' %s> [3] (TEST) </option>          
+       </select></td>
+        <td>&nbsp;Solution QOS Type (0~3)</td>
+      </tr>  
+      <tr>
+        <td>SOL_EXTPL_ENABLED</td>
+        <td><select name='SOL_EXTPL_ENABLED' value='%d' onclick='javascript:set_bg_white(this);'>
+          <option value='0' %s> [0] Disabled </option>
+          <option value='1' %s> [1] Extrapolation by UTM-SPD </option>
+          <option value='2' %s> [2] Extrapolation by PVT-SPD </option>                 
+       </select></td>
+        <td>&nbsp;[GNSS] Extrapolation Type <b><u>(Default: 1)</u></b></td>
+      </tr>  
+      <tr>
+        <td>SOL_EXTPL_PSTEP</td>
+        <td><input type='number' name='SOL_EXTPL_PSTEP' value='%d' min=1 max=6 onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;[GNSS] Number of previous locations <b><u>(Default: 6)</u></b></td>
+      </tr>    
+      <tr>
+        <td>SOL_SMTH_SOLCHANGE</td>
+        <td><input type='number' name='SOL_SMTH_SOLCHANGE_MSx01' value='%d' min=0 max=200 onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;[GNSS] Smooth SOL Transition Counts x 0.1 (value 30 => counts 300) <b><u>(Default: 0)</u></b></td>
+      </tr>
+      <tr>
+        <td>SOL_SMTH_LOCATION</td>
+        <td><input type='number' name='SOL_SMTH_LOCATION_ALPx100' value='%d' min=0 max=100 onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;[GNSS] Smooth Location Alpha <b><u>(Default: 20)</u></b></td>
+      </tr>
+      <tr>
+        <td>SOL_SMTH_HEADING</td>
+        <td><input type='number' name='SOL_SMTH_HEADING_ALPx100' value='%d' min=0 max=100 onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;[GNSS] Smooth Heading Alpha <b><u>(Default: 10)</u></b></td>
+      </tr>
+      <tr>
+        <td>INIT_LAT</td>
+        <td><input type='text' name='CFG_PRM_INIT_LAT' value='%.9f' onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;[GNSS] Initial Default LAT (deg)</td>
+      </tr>  
+      <tr>
+        <td>INIT_LON</td>
+        <td><input type='text' name='CFG_PRM_INIT_LON' value='%.9f' onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;[GNSS] Initial Default LON (deg)</td>
+      </tr>  
+      <tr>
+        <td>INIT_HEIGHT</td>
+        <td><input type='text' name='CFG_PRM_INIT_HEIGHT' value='%.2f' onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;[GNSS] Initial Default Height (m)</td>
+      </tr>
+      <tr>
+        <td>INIT_HEAD_DEG</td>
+        <td><input type='text' name='CFG_PRM_INIT_HEAD_DEG' value='%.4f' onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;[GNSS] Initial Default Heading (deg)</td>
+      </tr>  
+      <tr>
+        <td>HEAD_ORIENT</td>
+        <td><input type='hidden' name='CFG_PRM_HEADING_TNCW' value='%d'><label><input type='checkbox' %s onclick='javascript:document.form1.CFG_PRM_HEADING_TNCW.value=(this.checked ? 1 : 0);'>&nbsp;TN_CW</label>&nbsp;</td>
+        <td>&nbsp;[GNSS] 0: True East CCW, 1: True North CW</td>
+      </tr>  
+      <tr>
+        <td>NTRIP_AP_SSID</td>
+        <td><input type='text' name='CFG_NTRIP_AP_SSID' value='%s' maxlength=12 onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;[GNSS] NTRIP AP SSID (max 12 char)</td>
+      </tr>  
+       <tr>
+        <td>NTRIP_AP_PWD</td>
+        <td><input type='text' name='CFG_NTRIP_AP_PWD' value='%s' maxlength=12 onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;[GNSS] NTRIP AP PWD (max 12 char)</td>
+      </tr>  
+      <tr>
+        <td>NTRIP_SVR_IP</td>
+        <td>
+          <input type='number' name='CFG_NTRIP_HOST_IP_0' value='%d' min=0 max=255 class='ip_type' onclick='javascript:set_bg_white(this);'>
+          <input type='number' name='CFG_NTRIP_HOST_IP_1' value='%d' min=0 max=255 class='ip_type' onclick='javascript:set_bg_white(this);'>
+          <input type='number' name='CFG_NTRIP_HOST_IP_2' value='%d' min=0 max=255 class='ip_type' onclick='javascript:set_bg_white(this);'>
+          <input type='number' name='CFG_NTRIP_HOST_IP_3' value='%d' min=0 max=255 class='ip_type' onclick='javascript:set_bg_white(this);'>
+        </td>
+        <td>&nbsp;[WIFI] NTRIP Server IP Address (223.171.137.121) (0~255)</td>
+      </tr>  
+      <tr>
+        <td>NTRIP_SVR_PORT</td>
+        <td><input type='number' name='CFG_NTRIP_HOST_PORT' value='%d' min=0 max=65000 onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;[WIFI] NTRIP Server Port Number (0~65000)</td>
+      </tr>  
+      <tr>
+        <td>NTRIP_SVR_USER</td>
+        <td><input type='text' name='CFG_NTRIP_USER' value='%s' maxlength=12 onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;[WIFI] NTRIP Server User ID (max 12 char)</td>
+      </tr>  
+      <tr>
+        <td>NTRIP_SVR_PWD</td>
+        <td><input type='text' name='CFG_NTRIP_PWD' value='%s' maxlength=12 onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;[WIFI] NTRIP Server User PWD (max 12 char)</td>
+      </tr>  
+      <tr>
+        <td>NTRIP_SVR_MNTPNT</td>
+        <td><input type='text' name='CFG_NTRIP_MNTPNT' value='%s' maxlength=9 onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;[WIFI] NTRIP Server Mount Point Name (max 9 char)</td>
+      </tr>  
+      <tr>
+        <td style='text-align: center; background-color:#b4c6d1;' colspan=3><input type='button' onclick='post_form_message();' value='Submit & Save' style='font-size:14px; font-weight:bold;'>&nbsp;&nbsp;&nbsp;&nbsp;<input type='reset' value='Reset Values' style='font-size:14px;'></td>    
+      </tr> 
+    </table><br> 
+    <!-- NETWORK SETTING ------------------------------------------------------------>
+    <table style='width: 700px; margin: auto; text-align: left;'>  
+      <tr>
+        <td class='title1' colspan=3><b>NETWORK SETTING</b></td>    
+      </tr> 
+      <tr>
+        <td style='width: 160px;' class='head1'><b>Name</b></td>
+        <td style='width: 200px;' class='head1'><b>Value</b></td>
+        <td style='width: 340px;' class='head1'><b>Description</b></td>
+      </tr>
+      <tr>
+        <td>ETH_LOCAL_IP</td>
+        <td>
+          <input type='number' name='CFG_ETH_LOCAL_IP_0' value='%d' min=0 max=255 class='ip_type' onclick='javascript:set_bg_white(this);'>
+          <input type='number' name='CFG_ETH_LOCAL_IP_1' value='%d' min=0 max=255 class='ip_type' onclick='javascript:set_bg_white(this);'>
+          <input type='number' name='CFG_ETH_LOCAL_IP_2' value='%d' min=0 max=255 class='ip_type' onclick='javascript:set_bg_white(this);'>
+          <input type='number' name='CFG_ETH_LOCAL_IP_3' value='%d' min=0 max=255 class='ip_type' onclick='javascript:set_bg_white(this);'>
+        </td>
+        <td>&nbsp;Ethernet Local IP (def:192.168.10.50)</td>
+      </tr>  
+      <tr>
+        <td>ETH_LOCAL_PORT</td>
+        <td><input type='number' name='CFG_ETH_LOCAL_PORT' value='%d' min=0 max=65000 onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;Ethernet Local Port Number (def:1050)</td>
+      </tr>        
+      <tr>
+        <td>ETH_GATE_IP</td>
+        <td>
+          <input type='number' name='CFG_ETH_GATE_IP_0' value='%d' min=0 max=255 class='ip_type' onclick='javascript:set_bg_white(this);'>
+          <input type='number' name='CFG_ETH_GATE_IP_1' value='%d' min=0 max=255 class='ip_type' onclick='javascript:set_bg_white(this);'>
+          <input type='number' name='CFG_ETH_GATE_IP_2' value='%d' min=0 max=255 class='ip_type' onclick='javascript:set_bg_white(this);'>
+          <input type='number' name='CFG_ETH_GATE_IP_3' value='%d' min=0 max=255 class='ip_type' onclick='javascript:set_bg_white(this);'>
+        </td>
+        <td>&nbsp;Ethernet Gateway IP (def:192.168.10.1)</td>
+      </tr>  
+      <tr>
+        <td>ETH_SUBNET_IP</td>
+        <td>
+          <input type='number' name='CFG_ETH_SUBNET_IP_0' value='%d' min=0 max=255 class='ip_type' onclick='javascript:set_bg_white(this);'>
+          <input type='number' name='CFG_ETH_SUBNET_IP_1' value='%d' min=0 max=255 class='ip_type' onclick='javascript:set_bg_white(this);'>
+          <input type='number' name='CFG_ETH_SUBNET_IP_2' value='%d' min=0 max=255 class='ip_type' onclick='javascript:set_bg_white(this);'>
+          <input type='number' name='CFG_ETH_SUBNET_IP_3' value='%d' min=0 max=255 class='ip_type' onclick='javascript:set_bg_white(this);'>
+        </td>
+        <td>&nbsp;Ethernet Subnet IP (def:255.255.255.0)</td>
+      </tr> 
+      <tr>  
+        <td>WIFI_SSID</td>
+        <td><input type='text' name='CFG_WIFI_SSID' value='%s' maxlength=9 onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;Wifi SSID (max 9 char)</td>
+      </tr>
+      <tr>  
+        <td>WIFI_PWD</td>
+        <td><input type='text' name='CFG_WIFI_PWD' value='%s' maxlength=15 onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;Wifi Password (max 15 char, more than 7 char)</td>
+      </tr>
+      <tr>
+        <td>WIFI_LOCAL_IP</td>
+        <td>
+          <input type='number' name='CFG_WIFI_LOCAL_IP_0' value='%d' min=0 max=255 class='ip_type' onclick='javascript:set_bg_white(this);'>
+          <input type='number' name='CFG_WIFI_LOCAL_IP_1' value='%d' min=0 max=255 class='ip_type' onclick='javascript:set_bg_white(this);'>
+          <input type='number' name='CFG_WIFI_LOCAL_IP_2' value='%d' min=0 max=255 class='ip_type' onclick='javascript:set_bg_white(this);'>
+          <input type='number' name='CFG_WIFI_LOCAL_IP_3' value='%d' min=0 max=255 class='ip_type' onclick='javascript:set_bg_white(this);'>
+        </td>
+        <td>&nbsp;Wifi Local IP (def:192.168.10.100)</td>
+      </tr>  
+      <tr>
+        <td>WIFI_LOCAL_PORT</td>
+        <td><input type='number' name='CFG_WIFI_LOCAL_PORT' value='%d' min=0 max=65000 onclick='javascript:set_bg_white(this);'></td>
+        <td>&nbsp;Wifi Local Port Number (def:1100)</td>
+      </tr>        
+      <tr>
+        <td>WIFI_GATE_IP</td>
+        <td>
+          <input type='number' name='CFG_WIFI_GATE_IP_0' value='%d' min=0 max=255 class='ip_type' onclick='javascript:set_bg_white(this);'>
+          <input type='number' name='CFG_WIFI_GATE_IP_1' value='%d' min=0 max=255 class='ip_type' onclick='javascript:set_bg_white(this);'>
+          <input type='number' name='CFG_WIFI_GATE_IP_2' value='%d' min=0 max=255 class='ip_type' onclick='javascript:set_bg_white(this);'>
+          <input type='number' name='CFG_WIFI_GATE_IP_3' value='%d' min=0 max=255 class='ip_type' onclick='javascript:set_bg_white(this);'>
+        </td>
+        <td>&nbsp;Wifi Gateway IP (def:192.168.10.100)</td>
+      </tr>  
+      <tr>
+        <td>WIFI_SUBNET_IP</td>
+        <td>
+          <input type='number' name='CFG_WIFI_SUBNET_IP_0' value='%d' min=0 max=255 class='ip_type' onclick='javascript:set_bg_white(this);'>
+          <input type='number' name='CFG_WIFI_SUBNET_IP_1' value='%d' min=0 max=255 class='ip_type' onclick='javascript:set_bg_white(this);'>
+          <input type='number' name='CFG_WIFI_SUBNET_IP_2' value='%d' min=0 max=255 class='ip_type' onclick='javascript:set_bg_white(this);'>
+          <input type='number' name='CFG_WIFI_SUBNET_IP_3' value='%d' min=0 max=255 class='ip_type' onclick='javascript:set_bg_white(this);'>
+        </td>
+        <td>&nbsp;Wifi Subnet IP (def:255.255.255.0)</td>
+      </tr> 
+      <tr>
+        <td style='text-align: center; background-color:#b4c6d1;' colspan=3><input type='button' onclick='post_form_message();' value='Submit & Save' style='font-size:14px; font-weight:bold;'>&nbsp;&nbsp;&nbsp;&nbsp;<input type='reset' value='Reset Values' style='font-size:14px;'></td>    
+      </tr> 
+    </table><br> 
+    <!-- WEB ADMIN ------------------------------------------------------------>
+    <input type='hidden' name='COMMAND_REBOOT_BOARD' value='0'>
+    <input type='hidden' name='COMMAND_RELOAD_CFG_ON' value='0'>
+    </form>       
+   </body>
+   </html>
