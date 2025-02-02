@@ -1,3 +1,4 @@
+import json
 import numpy as np
 import csv
 import pandas as pd
@@ -8,13 +9,12 @@ import torch
 import os
 
 
-DataGroupList = os.listdir('dataset/')
+with open('dataset/config.json') as f:
+    config = json.load(f)
 
-
-TimeGap = 0.1
-TimeHistory = 3
-DataGroupIndex = 2
-SamplingNumber = 100000
+TimeGap = config['Time_Gap']
+TimeHistory = config['Hitorical_Time_Horizon']
+SamplingNumber = config['Sampling_Number']
 
 DataList = glob.glob('dataset/' + DataGroupList[DataGroupIndex] + '/*.csv')
 InterpolatedDataList = []
