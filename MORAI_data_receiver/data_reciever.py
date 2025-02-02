@@ -13,7 +13,7 @@ network['host_ip'] = '127.0.0.1'
 network['ego_info_dst_port'] = 909
 ego_info_receiver = EgoInfoReceiver(network['host_ip'], network['ego_info_dst_port'])
 
-FrameNumber = 1500
+FrameNumber = 20000
 SteeringAngle = [0 for i in range(FrameNumber)]
 AccelPedalRate = [0 for i in range(FrameNumber)]
 BrakePedalRate = [0 for i in range(FrameNumber)]
