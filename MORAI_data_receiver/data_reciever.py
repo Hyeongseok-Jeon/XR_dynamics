@@ -1,6 +1,7 @@
 import numpy as np
 
 from receiver.ego_info_receiver import EgoInfoReceiver
+from MORAI_data_receiver.receiver.ego_info_receiver import EgoInfoReceiver
 import os
 import threading
 import time
@@ -36,11 +37,22 @@ while True:
     if np.asarray(ego_status).sum() == 0:
         pass
     else:
-        SteeringAngle[index] = ego_status[24] # steering angle of the tire in degree, left turn (-) , right turn (+)
-        AccelPedalRate[index] = ego_status[4] # activation ratio of the accel pedal, normalized to 0 ~ 1
-        BrakePedalRate[index] = ego_status[5] # activation ratio of the brake pedal, normalized to 0 ~ 1
+        #
+        # [secs, nsecs, ctrl_mode, gear, signed_vel, map_id, accel, brake, size_x, size_y,
+        #  size_z, overhang, wheelbase, rear_overhang, pos_x, pos_y, pos_z, roll, pitch, yaw,
+        #  vel_x, vel_y, vel_z, ang_vel_x, ang_vel_y, ang_vel_z, acc_x, acc_y, acc_z, steer,
+        #  link_id, tire_lateral_force_fl, tire_lateral_force_fr, tire_lateral_force_rl, tire_lateral_force_rr, side_slip_angle_fl, side_slip_angle_fr, side_slip_angle_rl, side_slip_angle_rr, tire_cornering_stiffness_fl,
+        #  tire_cornering_stiffness_fr, tire_cornering_stiffness_rl, tire_cornering_stiffness_rr
+        #
 
-        Velocity[index] = np.abs(ego_status[2]) / 3.6 # in meter per second
+
+
+
+        SteeringAngle[index] = ego_status[29] # steering angle of the tire in degree, left turn (-) , right turn (+)
+        AccelPedalRate[index] = ego_status[6] # activation ratio of the accel pedal, normalized to 0 ~ 1
+        BrakePedalRate[index] = ego_status[7] # activation ratio of the brake pedal, normalized to 0 ~ 1
+
+        Velocity[index] = np.abs(ego_status[4]) / 3.6 # in meter per second
         RollRate[index] = np.deg2rad(ego_status[25]) # radian per second, left turn (+), right turn (-)
         PitchRate[index] = np.deg2rad(ego_status[26]) # radian per second, brake (+), accel (-)
         YawRate[index] = np.deg2rad(ego_status[27]) # radian per second, left turn (+), right turn (-)
