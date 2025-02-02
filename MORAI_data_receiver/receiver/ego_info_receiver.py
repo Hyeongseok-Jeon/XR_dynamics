@@ -18,7 +18,6 @@ class EgoInfoReceiver():
         while True:
             data_size = 65535
             raw_data, _ = self.sock.recvfrom(data_size)
-            print(struct.unpack('i', raw_data[11:15]))
             if self.header == raw_data[0:11].decode() and self.data_length == struct.unpack('i', raw_data[11:15])[0]:
                 secs = struct.unpack('f', raw_data[27:31])[0]
                 nsecs = struct.unpack('f', raw_data[31:35])[0]
@@ -36,7 +35,7 @@ class EgoInfoReceiver():
                 ang_vel_x, ang_vel_y, ang_vel_z = struct.unpack('fff', raw_data[113:125])
                 acc_x, acc_y, acc_z = struct.unpack('fff', raw_data[125:137])
                 steer = struct.unpack('f', raw_data[137:141])[0]
-                link_id = raw_data[141:179].decode()
+                link_id = 0
                 tire_lateral_force_fl = struct.unpack('f', raw_data[179:183])[0]
                 tire_lateral_force_fr = struct.unpack('f', raw_data[183:187])[0]
                 tire_lateral_force_rl = struct.unpack('f', raw_data[187:191])[0]
