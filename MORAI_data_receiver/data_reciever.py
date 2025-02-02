@@ -1,7 +1,7 @@
 import numpy as np
 
-# from receiver.ego_info_receiver import EgoInfoReceiver
-from MORAI_data_receiver.receiver.ego_info_receiver import EgoInfoReceiver
+from receiver.ego_info_receiver import EgoInfoReceiver
+# from MORAI_data_receiver.receiver.ego_info_receiver import EgoInfoReceiver
 import os
 import threading
 import time
@@ -17,7 +17,7 @@ network['host_ip'] = '127.0.0.1'
 network['ego_info_dst_port'] = 909
 ego_info_receiver = EgoInfoReceiver(network['host_ip'], network['ego_info_dst_port'])
 
-FrameNumber = 100000
+FrameNumber = input("데이터 취득을 위한 프레임 갯수를 입력하세요 : ")
 IndexID = [0 for i in range(FrameNumber)]
 TimeStamp = [0 for i in range(FrameNumber)]
 TimeInfo_nsecs = [0 for i in range(FrameNumber)]
