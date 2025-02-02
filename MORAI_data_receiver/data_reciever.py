@@ -126,7 +126,7 @@ while True:
 
 df = pd.DataFrame({'INDEX': IndexID,
                    'TimeStamp': TimeStamp,
-                   'TimeInfo_nsecs': TimeInfo_nsecs,
+                   'Duplicated_Sign': TimeInfo_nsecs,
                    'VehicleModel': VehicleModel,
                    'LocalX': LocalX,
                    'LocalY': LocalY,
