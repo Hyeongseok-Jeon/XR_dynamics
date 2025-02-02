@@ -85,7 +85,7 @@ else:
             Velocity[targetindex] = data[sourceindex, 9] # in meter per second
             EngineRPM[targetindex] = 0
 
-            SteeringAngle[targetindex] = data[sourceindex, 16]  # steering angle of the tire in degree, left turn (-) , right turn (+)
+            SteeringAngle[targetindex] = 0.1 * data[sourceindex, 16] / 13.5 # steering angle of the tire in degree, left turn (-) , right turn (+)
             AccelPedalRate[targetindex] = data[sourceindex, 17] * 0.01  # activation ratio of the accel pedal, normalized to 0 ~ 1
             BrakePedalRate[targetindex] = data[sourceindex, 18] * 0.01 # activation ratio of the brake pedal, normalized to 0 ~ 1
 
@@ -122,7 +122,7 @@ else:
                 Velocity[targetindex] = data[sourceindex, 9]  # in meter per second
                 EngineRPM[targetindex] = 0
 
-                SteeringAngle[targetindex] = data[sourceindex, 16]  # steering angle of the tire in degree, left turn (-) , right turn (+)
+                SteeringAngle[targetindex] = 0.1 * data[sourceindex, 16] / 13.5  # steering angle of the tire in degree, left turn (-) , right turn (+)
                 AccelPedalRate[targetindex] = data[sourceindex, 17] * 0.01  # activation ratio of the accel pedal, normalized to 0 ~ 1
                 BrakePedalRate[targetindex] = data[sourceindex, 18] * 0.01  # activation ratio of the brake pedal, normalized to 0 ~ 1
 
