@@ -8,7 +8,9 @@ import time
 from math import sqrt
 import pandas as pd
 from datetime import datetime
-import sys
+import progressbar
+from time import sleep
+
 
 network = dict()
 network['host_ip'] = '127.0.0.1'
@@ -34,6 +36,8 @@ Pitch = [0 for i in range(FrameNumber)]
 VehicleModel = [0 for i in range(FrameNumber)]
 index = 0
 
+bar = progressbar.ProgressBar(maxval=FrameNumber, widgets=[progressbar.Bar('=', '[', ']'), ' ', progressbar.Percentage()])
+bar.start()
 
 while True:
     ego_status = ego_info_receiver.parsed_data
@@ -47,7 +51,7 @@ while True:
         #  link_id, tire_lateral_force_fl, tire_lateral_force_fr, tire_lateral_force_rl, tire_lateral_force_rr, side_slip_angle_fl, side_slip_angle_fr, side_slip_angle_rl, side_slip_angle_rr, tire_cornering_stiffness_fl,
         #  tire_cornering_stiffness_fr, tire_cornering_stiffness_rl, tire_cornering_stiffness_rr
         #
-
+        bar.update(index + 1)
         if index == 0:
             now = datetime.now()
             start_date = now.strftime("%Y%m%d")
@@ -104,33 +108,20 @@ while True:
                 Pitch[index] = ego_status[16]
 
                 VehicleModel[index] = 'MOHAVE'
-
-                sys.stdout.write('\r')
-                # the exact output you're looking for:
-                sys.stdout.write("[%-20s] %d%%" % ('=' * i, 5 * i))
-                sys.stdout.flush()
-
-                print(index/FrameNumber)
-
                 index = index + 1
 
             else:
                 pass
 
 
-        # print([TimeStamp[index], TimeInfo_secs[index], TimeInfo_nsecs[index],
-        #        LocalY[index], LocalZ[index], Roll[index],
-        #        Yaw[index], Velocity[index], EngineRPM[index],
-        #        SteeringAngle[index], AccelPedalRate[index], BrakePedalRate[index],
-        #        YawRate[index], Roll[index], Pitch[index],
-        #        VehicleModel[index]])
-
         if index > FrameNumber-1:
             now = datetime.now()
             end_date = now.strftime("%Y%m%d")
             end_time = now.strftime("%H%M%S")
+            bar.finish()
             break
         time.sleep(0.001)
+
 
 
 df = pd.DataFrame({'INDEX': IndexID,
