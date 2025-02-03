@@ -141,6 +141,6 @@ df = pd.DataFrame({'INDEX': IndexID,
                    'Pitch': Pitch})
 
 root_name = 'dataset/raw_data_virtual_mohave/SIM_DAQ_BIN_LAND/SIM_CSV/'
-file_name = 'SIM_ASC_FROM_'+start_date+'_'+start_time+'_TO_'+end_date+'_'+end_time+'.csv'
+file_name = 'SIM_ASC_FROM_'+start_date+'_'+start_time+'_TO_'+end_date+'_'+end_time+'_processed.csv'
 
 df.to_csv(root_name+file_name, index=False)
