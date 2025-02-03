@@ -9,6 +9,8 @@ import time
 scenario_list_tot = glob.glob('dataset/raw_data_real_mohave/XRP_DAQ_BIN_LAND/XRP_CSV/*.csv')
 scenario_list_processed = [scenario_list_tot[i] for i in range(len(scenario_list_tot)) if "processed" in scenario_list_tot[i]]
 scenario_list = []
+steering_ratio = 13.5
+
 for i in range(len(scenario_list_tot)):
     if scenario_list_tot[i] in scenario_list_processed:
         pass
@@ -85,7 +87,7 @@ else:
             Velocity[targetindex] = data[sourceindex, 9] # in meter per second
             EngineRPM[targetindex] = 0
 
-            SteeringAngle[targetindex] = 0.1 * data[sourceindex, 16] / 13.5 # steering angle of the tire in degree, left turn (-) , right turn (+)
+            SteeringAngle[targetindex] = 0.1 * data[sourceindex, 16] / steering_ratio # steering angle of the tire in degree, left turn (-) , right turn (+)
             AccelPedalRate[targetindex] = data[sourceindex, 17] * 0.01  # activation ratio of the accel pedal, normalized to 0 ~ 1
             BrakePedalRate[targetindex] = data[sourceindex, 18] * 0.01 # activation ratio of the brake pedal, normalized to 0 ~ 1
 
@@ -122,7 +124,7 @@ else:
                 Velocity[targetindex] = data[sourceindex, 9]  # in meter per second
                 EngineRPM[targetindex] = 0
 
-                SteeringAngle[targetindex] = 0.1 * data[sourceindex, 16] / 13.5  # steering angle of the tire in degree, left turn (-) , right turn (+)
+                SteeringAngle[targetindex] = 0.1 * data[sourceindex, 16] / steering_ratio  # steering angle of the tire in degree, left turn (-) , right turn (+)
                 AccelPedalRate[targetindex] = data[sourceindex, 17] * 0.01  # activation ratio of the accel pedal, normalized to 0 ~ 1
                 BrakePedalRate[targetindex] = data[sourceindex, 18] * 0.01  # activation ratio of the brake pedal, normalized to 0 ~ 1
 
