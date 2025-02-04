@@ -188,3 +188,6 @@ for i in range(len(data_segment)):
                                 'Pitch': list(data_tmp[:, 12])})
     name = 'performance evaluation/' + target_scenario[target_scenario.find("\\")+1:-4] + '_VPP_injection_original_' + str(i) +'_.csv'
     df_original.to_csv(name, index=False, mode='x')
+
+# todo
+# from_sim데이터 초기값, 기어비 차이로 인한 steer angle값 등등 체크 필요 
