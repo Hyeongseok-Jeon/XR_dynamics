@@ -9,7 +9,7 @@ import time
 scenario_list_tot = glob.glob('dataset/raw_data_real_mohave/XRP_DAQ_BIN_LAND/XRP_CSV/*.csv')
 scenario_list_processed = [scenario_list_tot[i] for i in range(len(scenario_list_tot)) if "processed" in scenario_list_tot[i]]
 scenario_list = []
-steering_ratio = 13.5
+steering_ratio = 11.84210526315789
 
 for i in range(len(scenario_list_tot)):
     if scenario_list_tot[i] in scenario_list_processed:
