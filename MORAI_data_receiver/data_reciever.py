@@ -1,7 +1,7 @@
 import numpy as np
 
-from receiver.ego_info_receiver import EgoInfoReceiver
-# from MORAI_data_receiver.receiver.ego_info_receiver import EgoInfoReceiver
+# from receiver.ego_info_receiver import EgoInfoReceiver
+from MORAI_data_receiver.receiver.ego_info_receiver import EgoInfoReceiver
 import os
 import threading
 import time
@@ -17,7 +17,8 @@ network['host_ip'] = '127.0.0.1'
 network['ego_info_dst_port'] = 909
 ego_info_receiver = EgoInfoReceiver(network['host_ip'], network['ego_info_dst_port'])
 
-FrameNumber = input("데이터 취득을 위한 프레임 갯수를 입력하세요 : ")
+FrameNumber = 50000
+# FrameNumber = int(input("데이터 취득을 위한 프레임 갯수를 입력하세요 : "))
 IndexID = [0 for i in range(FrameNumber)]
 TimeStamp = [0 for i in range(FrameNumber)]
 TimeInfo_nsecs = [0 for i in range(FrameNumber)]
@@ -58,27 +59,35 @@ while True:
             start_time = now.strftime("%H%M%S")
 
             IndexID[index] = index + 1
-            TimeStamp[index] = 0
+            TimeStamp[index] = 0 # sec
             StartTime = time.time()
 
             TimeInfo_nsecs[index] = ego_status[1]
 
-            LocalX[index] = ego_status[14]
-            LocalY[index] = ego_status[15]
-            LocalZ[index] = ego_status[16]
+            LocalX[index] = ego_status[14] # in meter
+            LocalY[index] = ego_status[15] # in meter
+            LocalZ[index] = ego_status[16] # in meter
 
-            Yaw[index] = ego_status[19]
+            Yaw[index] = ego_status[19] # south : -90 deg, east: 0 deg (-180 ~ 180 deg)
             Velocity[index] = np.abs(ego_status[4]) / 3.6  # in meter per second
             EngineRPM[index] = 0
 
-            SteeringAngle[index] = ego_status[
-                29]  # steering angle of the tire in degree, left turn (-) , right turn (+)
+            SteeringAngle[index] = ego_status[29]  # steering angle of the tire in degree, left turn (+) , right turn (-)
             AccelPedalRate[index] = ego_status[6]  # activation ratio of the accel pedal, normalized to 0 ~ 1
             BrakePedalRate[index] = ego_status[7]  # activation ratio of the brake pedal, normalized to 0 ~ 1
 
-            YawRate[index] = np.deg2rad(ego_status[27])  # radian per second, left turn (+), right turn (-)
-            Roll[index] = ego_status[15]
-            Pitch[index] = ego_status[16]
+            YawRate[index] = np.deg2rad(ego_status[25])  # radian per second, left turn (+), right turn (-)
+            if np.abs(ego_status[17]) > 200:
+                roll = 360 + ego_status[17]
+            else:
+                roll = ego_status[17]
+            Roll[index] = roll  # degree, left up & right down (+) , left down & right up (-)
+
+            if ego_status[18] > 300:
+                pitch = 360 - ego_status[18]
+            else:
+                pitch = - ego_status[18]
+            Pitch[index] = pitch  # degree, climb (+) , downhill (-)
 
             VehicleModel[index] = 'MOHAVE'
 
@@ -90,29 +99,35 @@ while True:
                 TimeStamp[index] = time.time() - StartTime
                 TimeInfo_nsecs[index] = ego_status[1]
 
-                LocalX[index] = ego_status[14]
-                LocalY[index] = ego_status[15]
-                LocalZ[index] = ego_status[16]
+                LocalX[index] = ego_status[14] # in meter
+                LocalY[index] = ego_status[15] # in meter
+                LocalZ[index] = ego_status[16] # in meter
 
-                Yaw[index] = ego_status[19]
+                Yaw[index] = ego_status[19] # south : -90 deg, east: 0 deg (-180 ~ 180 deg)
                 Velocity[index] = np.abs(ego_status[4]) / 3.6  # in meter per second
                 EngineRPM[index] = 0
 
-                SteeringAngle[index] = ego_status[
-                    29]  # steering angle of the tire in degree, left turn (-) , right turn (+)
+                SteeringAngle[index] = ego_status[29]  # steering angle of the tire in degree, left turn (+) , right turn (-)
                 AccelPedalRate[index] = ego_status[6]  # activation ratio of the accel pedal, normalized to 0 ~ 1
                 BrakePedalRate[index] = ego_status[7]  # activation ratio of the brake pedal, normalized to 0 ~ 1
 
-                YawRate[index] = np.deg2rad(ego_status[27])  # radian per second, left turn (+), right turn (-)
-                Roll[index] = ego_status[15]
-                Pitch[index] = ego_status[16]
+                YawRate[index] = np.deg2rad(ego_status[25])  # radian per second, left turn (+), right turn (-)
+                if np.abs(ego_status[17]) > 200:
+                    roll = 360 + ego_status[17]
+                else:
+                    roll = ego_status[17]
+                Roll[index] = roll  # degree, left up & right down (+) , left down & right up (-)
+
+                if ego_status[18] > 300:
+                    pitch = 360 - ego_status[18]
+                else:
+                    pitch = - ego_status[18]
+                Pitch[index] = pitch # degree, climb (+) , downhill (-)
 
                 VehicleModel[index] = 'MOHAVE'
                 index = index + 1
-
             else:
                 pass
-
 
         if index > FrameNumber-1:
             now = datetime.now()

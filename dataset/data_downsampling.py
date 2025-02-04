@@ -91,7 +91,7 @@ for dataid in range(len(DataList)):
             next_pos = np.asarray([LocalX[i+1], LocalY[i+1], LocalZ[i+1]])
             dist_prev =np.sqrt(np.sum((cur_pos-prev_pos)**2, axis=0))
             dist_next =np.sqrt(np.sum((next_pos - cur_pos)**2, axis=0))
-            Velocity[i] = (dist_prev + dist_next) / TimeGap
+            Velocity[i] = ((dist_prev + dist_next) / TimeGap)/2
 
     data_downsampled_final = [i+1 for i in range(len(Velocity)-2)]
     df = pd.DataFrame({'INDEX': [IndexID[i] for i in data_downsampled_final],
@@ -111,5 +111,5 @@ for dataid in range(len(DataList)):
                        'Pitch': [Pitch[i] for i in data_downsampled_final]})
 
     name = DataList[dataid][:DataList[dataid].find("processed")-1] + "_downsampled.csv"
-    df.to_csv(name, index=False)
+    df.to_csv(name, index=False, mode='x')
 

@@ -54,6 +54,25 @@ else:
 
     bar = progressbar.ProgressBar(maxval=MaxFrameNumber, widgets=[progressbar.Bar('=', '[', ']'), ' ', progressbar.Percentage()])
     bar.start()
+    #
+    # LocalX[index] = ego_status[14]  # in meter
+    # LocalY[index] = ego_status[15]  # in meter
+    # LocalZ[index] = ego_status[16]  # in meter
+    #
+    # Yaw[index] = ego_status[19]  # south : -90 deg, east: 0 deg (-180 ~ 180 deg)
+    # Velocity[index] = np.abs(ego_status[4]) / 3.6  # in meter per second
+    # EngineRPM[index] = 0
+    #
+    # SteeringAngle[index] = ego_status[29]  # steering angle of the tire in degree, left turn (+) , right turn (-)
+    # AccelPedalRate[index] = ego_status[6]  # activation ratio of the accel pedal, normalized to 0 ~ 1
+    # BrakePedalRate[index] = ego_status[7]  # activation ratio of the brake pedal, normalized to 0 ~ 1
+    #
+    # YawRate[index] = np.deg2rad(ego_status[25])  # radian per second, left turn (+), right turn (-)
+    # Roll[index] = roll  # degree, left up & right down (+) , left down & right up (-)
+    # Pitch[index] = pitch  # degree, climb (+) , downhill (-)
+    #
+    # VehicleModel[index] = 'MOHAVE'
+    #
 
     while True:
         bar.update(sourceindex + 1)
@@ -83,17 +102,20 @@ else:
             LocalY[targetindex] = 0
             LocalZ[targetindex] = 0
 
-            Yaw[targetindex] = data[sourceindex, 8]
-            Velocity[targetindex] = data[sourceindex, 9] # in meter per second
+            Yaw[targetindex] = 90 - data[sourceindex, 8]
+            Velocity[targetindex] = data[sourceindex, 9]
             EngineRPM[targetindex] = 0
 
-            SteeringAngle[targetindex] = 0.1 * data[sourceindex, 16] / steering_ratio # steering angle of the tire in degree, left turn (-) , right turn (+)
-            AccelPedalRate[targetindex] = data[sourceindex, 17] * 0.01  # activation ratio of the accel pedal, normalized to 0 ~ 1
-            BrakePedalRate[targetindex] = data[sourceindex, 18] * 0.01 # activation ratio of the brake pedal, normalized to 0 ~ 1
+            SteeringAngle[targetindex] = -0.1 * data[sourceindex, 16] / steering_ratio
+            AccelPedalRate[targetindex] = data[sourceindex, 17] * 0.01
+            BrakePedalRate[targetindex] = data[sourceindex, 18] * 0.01
 
-            YawRate[targetindex] = np.deg2rad(data[sourceindex, 19])  # radian per second, left turn (+), right turn (-)
+            YawRate[targetindex] = np.deg2rad(data[sourceindex, 19])
             Roll[targetindex] = data[sourceindex, 20]
             Pitch[targetindex] = data[sourceindex, 21]
+# TODO
+# Roll data의 부호 및 단위를 SIM Data와 통일해야함
+# Pitch data의 부호 및 단위를 SIM Data와 통일해야함
 
             VehicleModel[targetindex] = 'MOHAVE'
 
@@ -120,15 +142,20 @@ else:
                 LocalY[targetindex] = utm_y - LocalOrigin_Y
                 LocalZ[targetindex] = data[sourceindex, 7] - LocalOrigin_Z
 
-                Yaw[targetindex] = data[sourceindex, 8]
+                Yaw[targetindex] = 90 - data[sourceindex, 8]
                 Velocity[targetindex] = data[sourceindex, 9]  # in meter per second
                 EngineRPM[targetindex] = 0
 
-                SteeringAngle[targetindex] = 0.1 * data[sourceindex, 16] / steering_ratio  # steering angle of the tire in degree, left turn (-) , right turn (+)
-                AccelPedalRate[targetindex] = data[sourceindex, 17] * 0.01  # activation ratio of the accel pedal, normalized to 0 ~ 1
-                BrakePedalRate[targetindex] = data[sourceindex, 18] * 0.01  # activation ratio of the brake pedal, normalized to 0 ~ 1
+                SteeringAngle[targetindex] = -0.1 * data[sourceindex, 16] / steering_ratio
+                AccelPedalRate[targetindex] = data[sourceindex, 17] * 0.01
+                BrakePedalRate[targetindex] = data[sourceindex, 18] * 0.01
 
-                YawRate[targetindex] = np.deg2rad(data[sourceindex, 19])  # radian per second, left turn (+), right turn (-)
+                YawRate[targetindex] = np.deg2rad(data[sourceindex, 19])
+
+                # TODO
+                # Roll data의 부호 및 단위를 SIM Data와 통일해야함
+                # Pitch data의 부호 및 단위를 SIM Data와 통일해야함
+
                 Roll[targetindex] = data[sourceindex, 20]
                 Pitch[targetindex] = data[sourceindex, 21]
 
