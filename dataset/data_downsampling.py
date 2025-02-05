@@ -82,16 +82,16 @@ for dataid in range(len(DataList)):
             Pitch[targetindex] = interpolation(targetindex * TimeGap, data[prev_index, 1], data[prev_index+1,1], data[prev_index, 13], data[prev_index+1,13])
 
 
-    for i in range(len(TimeStamp)):
-        if i == 0 or i == len(TimeStamp)-1:
-            Velocity[i] = np.NAN
-        else:
-            prev_pos = np.asarray([LocalX[i-1], LocalY[i-1], LocalZ[i-1]])
-            cur_pos = np.asarray([LocalX[i], LocalY[i], LocalZ[i]])
-            next_pos = np.asarray([LocalX[i+1], LocalY[i+1], LocalZ[i+1]])
-            dist_prev =np.sqrt(np.sum((cur_pos-prev_pos)**2, axis=0))
-            dist_next =np.sqrt(np.sum((next_pos - cur_pos)**2, axis=0))
-            Velocity[i] = ((dist_prev + dist_next) / TimeGap)/2
+    # for i in range(len(TimeStamp)):
+    #     if i == 0 or i == len(TimeStamp)-1:
+    #         Velocity[i] = np.NAN
+    #     else:
+    #         prev_pos = np.asarray([LocalX[i-1], LocalY[i-1], LocalZ[i-1]])
+    #         cur_pos = np.asarray([LocalX[i], LocalY[i], LocalZ[i]])
+    #         next_pos = np.asarray([LocalX[i+1], LocalY[i+1], LocalZ[i+1]])
+    #         dist_prev =np.sqrt(np.sum((cur_pos-prev_pos)**2, axis=0))
+    #         dist_next =np.sqrt(np.sum((next_pos - cur_pos)**2, axis=0))
+    #         Velocity[i] = ((dist_prev + dist_next) / TimeGap)/2
 
     data_downsampled_final = [i+1 for i in range(len(Velocity)-2)]
     df = pd.DataFrame({'INDEX': [IndexID[i] for i in data_downsampled_final],

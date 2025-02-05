@@ -92,8 +92,29 @@ for i in range(len(data_segment)):
 
     init_time = time.time()
     frame_id = 0
+
+
     while True:
         if frame_id == 0:
+            cmd.ctrl_mode = 2  # 1 : Keyboard   2 : AutoMode
+            cmd.gear = 4
+            cmd.cmd_type = 1
+            cmd.accel =0
+            cmd.brake = 1
+            cmd.steer =0
+            ego_ctrl.send(cmd)
+
+            time.sleep(3)
+
+            cmd.ctrl_mode = 2  # 1 : Keyboard   2 : AutoMode
+            cmd.gear = 1
+            cmd.cmd_type = 1
+            cmd.accel = 0
+            cmd.brake = 1
+            cmd.steer = 0
+            ego_ctrl.send(cmd)
+
+
             for ii in range(3, 0, -1):
                 sys.stdout.write(str(ii) + ' ')
                 sys.stdout.flush()
@@ -101,6 +122,7 @@ for i in range(len(data_segment)):
             sys.stdout.write('start!')
             sys.stdout.flush()
             time.sleep(1)
+            cmd.gear = 4
             cmd.accel = data_tmp[frame_id, 9]
             cmd.brake = data_tmp[frame_id, 10]
             cmd.steer = -data_tmp[frame_id, 8] / 38  # -1 ~ 1
@@ -169,7 +191,7 @@ for i in range(len(data_segment)):
                            'BrakePedalRate': BrakePedalRate,
                            'YawRate': YawRate,
                            'Pitch': Pitch})
-    name = 'performance evaluation/' + target_scenario[target_scenario.find("\\")+1:-4] + '_VPP_injection_from_sim_' + str(i) +'_.csv'
+    name = 'performance evaluation/' + target_scenario[target_scenario.find("\\")+1:-4] + '_VPP_injection_from_sim_' + str(i) +'.csv'
     df_new.to_csv(name, index=False, mode='x')
 
     df_original = pd.DataFrame({'INDEX': list(data_tmp[:, 0]),
@@ -186,7 +208,7 @@ for i in range(len(data_segment)):
                                 'BrakePedalRate': list(data_tmp[:, 10]),
                                 'YawRate': list(data_tmp[:, 11]),
                                 'Pitch': list(data_tmp[:, 12])})
-    name = 'performance evaluation/' + target_scenario[target_scenario.find("\\")+1:-4] + '_VPP_injection_original_' + str(i) +'_.csv'
+    name = 'performance evaluation/' + target_scenario[target_scenario.find("\\")+1:-4] + '_VPP_injection_original_' + str(i) +'.csv'
     df_original.to_csv(name, index=False, mode='x')
 
 # todo
