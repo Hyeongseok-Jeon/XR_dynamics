@@ -16,10 +16,11 @@ from torch.utils.data import Sampler, DataLoader
 
 
 # root_path = os.path.dirname(os.path.abspath(__file__))
-root_path = "D:\\research\\trajectory_prediction"
-sys.path.insert(0, root_path)
+# sys.path.insert(0, root_path)
 
 config = dict()
+
+config['batch_size'] = 32
 
 config['network_identifier']
 config['loss_function_identifier']
@@ -28,8 +29,8 @@ config['optimizer_identifier']
 
 def main():
     # Import all settings for experiment.
-
-    config, Dataset, collate_fn, net, loss, post_process, opt = model.get_model()
+    train_dataloader = DataLoader(training_data, batch_size=batch_size)
+    test_dataloader = DataLoader(test_data, batch_size=batch_size)
 
     config["train_split"] = os.path.join(root_path, "dataset\\HMC\\train\\data")
     config["val_split"] = os.path.join(root_path, "dataset\\HMC\\val\\data")
